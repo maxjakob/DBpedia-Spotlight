@@ -38,7 +38,7 @@ import java.util.*;
  *
  * @author pablomendes
  */
-public class SpotlightConfiguration {
+public class JSpotlightConfiguration {
 
     private static Log LOG = LogFactory.getLog(SpotlightConfiguration.class);
     //TODO could get all of these from configuration file
@@ -185,7 +185,7 @@ public class SpotlightConfiguration {
     }
 
 
-    public SpotlightConfiguration(String fileName) throws ConfigurationException {
+    public JSpotlightConfiguration(String fileName) throws ConfigurationException {
 
         //read config properties
         Properties config = new Properties();

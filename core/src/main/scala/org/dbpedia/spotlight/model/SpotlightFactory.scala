@@ -33,11 +33,11 @@ import collection.JavaConversions._
 import org.dbpedia.spotlight.annotate.DefaultAnnotator
 import org.dbpedia.spotlight.lucene.disambiguate.MergedOccurrencesDisambiguator
 import org.dbpedia.spotlight.model.SpotterConfiguration.SpotterPolicy
-import org.dbpedia.spotlight.model.SpotlightConfiguration.DisambiguationPolicy
 import org.dbpedia.spotlight.lucene.search.{LuceneCandidateSearcher, MergedOccurrencesContextSearcher}
 import com.aliasi.util.AbstractExternalizable
 import com.aliasi.dict.Dictionary
 import org.dbpedia.spotlight.exceptions.ConfigurationException
+import org.dbpedia.spotlight.model.DisambiguationPolicy
 
 /**
  * This class contains many of the "defaults" for DBpedia Spotlight.
@@ -82,7 +82,7 @@ class SpotlightFactory(val configuration: SpotlightConfiguration) {
 
 
     val spotters = new java.util.LinkedHashMap[SpotterConfiguration.SpotterPolicy,Spotter]() // LinkedHashMap used to preserve order (needed in spotter())
-    val disambiguators = new java.util.LinkedHashMap[SpotlightConfiguration.DisambiguationPolicy,ParagraphDisambiguatorJ]()
+    val disambiguators = new java.util.LinkedHashMap[DisambiguationPolicy,ParagraphDisambiguatorJ]()
 
     //populate
     LOG.info("Initiating spotters...")
