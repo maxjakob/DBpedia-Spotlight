@@ -132,7 +132,7 @@ public class OutputManager {
                 hd.startElement("","","Resources",atts);
             }
 
-            atts.addAttribute("","","URI","CDATA", SpotlightConfiguration.DEFAULT_NAMESPACE+occ.resource().uri());
+            atts.addAttribute("","","URI","CDATA", SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE +occ.resource().uri());
             atts.addAttribute("","","support","CDATA",String.valueOf(occ.resource().support()));
             atts.addAttribute("","","types","CDATA",(occ.resource().types()).mkString(","));
             // support and types should go to resource

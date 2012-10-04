@@ -105,7 +105,7 @@ public class CandidateIndexer extends BaseIndexer<Candidate> {
         NxParser nxParser = new NxParser(new FileInputStream(surfaceFormsDataSet), false);
         while (nxParser.hasNext()) {
             Node[] nodes = nxParser.next();
-            String resourceString = nodes[0].toString().replace(SpotlightConfiguration.DEFAULT_NAMESPACE,"");
+            String resourceString = nodes[0].toString().replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE,"");
             String surfaceFormString = nodes[2].toString();
             List<SurfaceForm> surfaceForms = AddSurfaceFormsToIndex.fromTitlesToAlternativesJ(new SurfaceForm(surfaceFormString));
             add(surfaceForms, new DBpediaResource(resourceString));

@@ -257,13 +257,13 @@ public abstract class DatasetSplitter {
     public static Set<String> getConfusableSurfaceForms(String targetType, File instancesFile, LuceneCandidateSearcher surrogateSearcher) throws IOException, ParseException {
         System.err.println("Getting all surface forms for "+targetType+"s...");
         Set<String> surfaceForms = new HashSet<String>();
-        if (!targetType.startsWith(SpotlightConfiguration.DEFAULT_ONTOLOGY_PREFIX))
-            targetType = SpotlightConfiguration.DEFAULT_ONTOLOGY_PREFIX+ targetType;
+        if (!targetType.startsWith(SpotlightConfiguration.DEFAULT_ONTOLOGY_NAMESPACE))
+            targetType = SpotlightConfiguration.DEFAULT_ONTOLOGY_NAMESPACE + targetType;
         NxParser parser = new NxParser(new FileInputStream(instancesFile));
         while (parser.hasNext()) {
             Node[] triple = parser.next();
             if (triple[2].toString().equals(targetType)) {
-                String targetUri = triple[0].toString().replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "");
+                String targetUri = triple[0].toString().replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "");
                 try {
                     Set<SurfaceForm> surfaceFormsForURI = surrogateSearcher.getSurfaceForms(new DBpediaResource(targetUri));
                     for (SurfaceForm sf : surfaceFormsForURI) {

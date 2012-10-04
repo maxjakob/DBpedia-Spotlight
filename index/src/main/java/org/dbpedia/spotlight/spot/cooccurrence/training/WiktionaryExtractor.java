@@ -143,9 +143,9 @@ public class WiktionaryExtractor extends DefaultHandler {
 					}
 
 					if(wikiLink == null)
-						dbpediaResource = SpotlightConfiguration.DEFAULT_NAMESPACE + wikipediaEncode(currentTitle);
+						dbpediaResource = SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE + wikipediaEncode(currentTitle);
 					else
-						dbpediaResource = SpotlightConfiguration.DEFAULT_NAMESPACE + wikipediaEncode(wikiLink);
+						dbpediaResource = SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE + wikipediaEncode(wikiLink);
 
 				}
 

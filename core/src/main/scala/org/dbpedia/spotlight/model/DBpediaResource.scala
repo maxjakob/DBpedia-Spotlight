@@ -29,7 +29,7 @@ class DBpediaResource(var uri : String,
 {
     require(uri != null)
 
-    uri = uri.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
+    uri = uri.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
 
     uri = if (ModifiedWikiUtil.isEncoded(uri)) {
               ModifiedWikiUtil.spaceToUnderscore(uri).capitalize
@@ -97,7 +97,7 @@ class DBpediaResource(var uri : String,
         if (isExternalURI) {
             uri
         } else {
-            SpotlightConfiguration.DEFAULT_NAMESPACE + uri
+            SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE + uri
         }
     }
 

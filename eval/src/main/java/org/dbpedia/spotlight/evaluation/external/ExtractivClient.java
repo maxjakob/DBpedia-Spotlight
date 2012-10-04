@@ -125,7 +125,7 @@ public class ExtractivClient extends AnnotationClient {
 
 				String dbpediaLink = null;
 				for (int j = 0; j < links.length(); j++) {
-					if (links.getString(j).startsWith(SpotlightConfiguration.DEFAULT_NAMESPACE)) {
+					if (links.getString(j).startsWith(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE)) {
 						dbpediaLink = links.getString(j);
 					}
 				}

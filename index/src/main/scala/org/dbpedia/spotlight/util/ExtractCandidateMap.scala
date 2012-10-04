@@ -78,7 +78,7 @@ object ExtractCandidateMap
         for (fileName <- List(redirectsFileName, disambiguationsFileName)) {
             val input = new BZip2CompressorInputStream(new FileInputStream(fileName), true)
             for(triple <- new NxParser(input)) {
-                val badUri = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
+                val badUri = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
                 badURIs += badUri
                 badURIStream.println(badUri)
             }
@@ -92,7 +92,7 @@ object ExtractCandidateMap
         val parser = new NxParser(titlesInputStream)
         while (parser.hasNext) {
             val triple = parser.next
-            val uri = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
+            val uri = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
             if (looksLikeAGoodURI(uri) && !badURIs.contains(uri))
                 conceptURIStream.println(uri)
         }
@@ -140,8 +140,8 @@ object ExtractCandidateMap
         val parser = new NxParser(redirectsInput)
         while (parser.hasNext) {
             val triple = parser.next
-            val subj = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
-            val obj = triple(2).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
+            val subj = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
+            val obj = triple(2).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
             linkMap = linkMap.updated(subj, obj)
         }
         redirectsInput.close()
@@ -225,8 +225,8 @@ object ExtractCandidateMap
             val parser = new NxParser(input)
             while (parser.hasNext) {
                 val triple = parser.next
-                val surfaceFormUri = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
-                val uri = triple(2).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
+                val surfaceFormUri = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
+                val uri = triple(2).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
 
                 if (conceptURIs contains uri) {
                     getCleanSurfaceForm(surfaceFormUri, stopWords, lowerCased) match {
@@ -275,8 +275,8 @@ object ExtractCandidateMap
             val parser = new NxParser(input)
             while (parser.hasNext) {
                 val triple = parser.next
-                val subj = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
-                val obj = triple(2).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
+                val subj = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
+                val obj = triple(2).toString.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, "")
                 linkMap = linkMap.updated(obj, linkMap.get(obj).getOrElse(List[String]()) ::: List(subj))
             }
             input.close()
@@ -359,7 +359,7 @@ object ExtractCandidateMap
 
         for (line <- Source.fromFile(surfaceFormsFileName, "UTF-8").getLines) {
             val elements = line.split("\t")
-            val subj = new Resource(SpotlightConfiguration.DEFAULT_NAMESPACE+elements(1))
+            val subj = new Resource(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE+elements(1))
             val obj = new Literal(elements(0), "lang=" + SpotlightConfiguration.DEFAULT_LANGUAGE_I18N_CODE, Literal.STRING)
             val triple = new Triple(subj, predicate, obj)
             ntStream.println(triple.toN3)
@@ -382,7 +382,7 @@ object ExtractCandidateMap
 
         for (line <- Source.fromFile(surfaceFormsFileName, "UTF-8").getLines) {
             val elements = line.split("\t")
-            val subj = new Resource(SpotlightConfiguration.DEFAULT_NAMESPACE+elements(1))
+            val subj = new Resource(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE+elements(1))
             val obj = new Resource("http://lexvo.org/id/term/"+langString+"/"+ModifiedWikiUtil.wikiEncode(elements(0)))
             val triple = new Triple(subj, predicate, obj)
             ntStream.println(triple.toN3)
@@ -410,7 +410,7 @@ object ExtractCandidateMap
         maximumSurfaceFormLength = config.get("org.dbpedia.spotlight.data.maxSurfaceFormLength").toInt
 
         //DBpedia config
-        SpotlightConfiguration.DEFAULT_NAMESPACE=config.get("org.dbpedia.spotlight.default_namespace",SpotlightConfiguration.DEFAULT_NAMESPACE)
+        SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE=config.get("org.dbpedia.spotlight.default_namespace",SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE)
 
 
         //Bad URIs -- will exclude any URIs that match these patterns. Used for Lists, disambiguations, etc.

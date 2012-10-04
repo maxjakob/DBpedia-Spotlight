@@ -51,36 +51,30 @@ public class SpotlightConfiguration {
     public final static String DEFAULT_POLICY = "whitelist";
     public final static String DEFAULT_COREFERENCE_RESOLUTION = "true";
     @Deprecated
-    public static String DEFAULT_NAMESPACE = "http://dbpedia.org/resource/";
+    public static String DEFAULT_RESOURCE_NAMESPACE = "http://dbpedia.org/resource/";
     @Deprecated
-    public static String DEFAULT_ONTOLOGY_PREFIX = "http://dbpedia.org/ontology/";
+    public static String DEFAULT_ONTOLOGY_NAMESPACE = "http://dbpedia.org/ontology/";
     @Deprecated
     public static String DEFAULT_LANGUAGE_I18N_CODE = "en";
 
     public enum DisambiguationPolicy {Document, Occurrences, CuttingEdge, Default}
 
-    private String dbpediaResource="http://dbpedia.org/resource/";
-
-    private String dbpediaOntology="http://dbpedia.org/ontology/";
-
+    private String dbpediaResourceNamespace;
+    private String dbpediaOntologyNamespace;
     private String language;
+    private String i18nLanguageCode;
 
+    public String getDbpediaResourceNamespace() {
+        return dbpediaResourceNamespace;
+    }
+
+    public String getDbpediaOntologyNamespace() {
+        return dbpediaOntologyNamespace;
+    }
 
     public String getLanguage() {
         return language;
     }
-
-    public String getDbpediaResource() {
-        return dbpediaResource;
-    }
-
-    public String getDbpediaOntology() {
-        return dbpediaOntology;
-    }
-
-
-    private String i18nLanguageCode = "en";
-
 
     public String getI18nLanguageCode() {
         return i18nLanguageCode;
@@ -190,6 +184,7 @@ public class SpotlightConfiguration {
         return analyzer;
     }
 
+
     public SpotlightConfiguration(String fileName) throws ConfigurationException {
 
         //read config properties
@@ -200,14 +195,11 @@ public class SpotlightConfiguration {
             throw new ConfigurationException("Cannot find configuration file " + fileName, e);
         }
 
-        DEFAULT_NAMESPACE = config.getProperty("org.dbpedia.spotlight.default_namespace", DEFAULT_NAMESPACE);
-        dbpediaResource = config.getProperty("org.dbpedia.spotlight.default_namespace", dbpediaResource);
-
-        DEFAULT_ONTOLOGY_PREFIX = config.getProperty("org.dbpedia.spotlight.default_ontology", DEFAULT_ONTOLOGY_PREFIX);
-        dbpediaOntology =config.getProperty("org.dbpedia.spotlight.default_ontology", dbpediaOntology);
-
-        DEFAULT_LANGUAGE_I18N_CODE = config.getProperty("org.dbpedia.spotlight.language_i18n_code", DEFAULT_LANGUAGE_I18N_CODE);
-        i18nLanguageCode = config.getProperty("org.dbpedia.spotlight.language_i18n_code", "en");
+        dbpediaResourceNamespace = getProp(config, "org.dbpedia.spotlight.namespace.resource",
+                "org.dbpedia.spotlight.default_namespace", DEFAULT_RESOURCE_NAMESPACE);
+        dbpediaOntologyNamespace = getProp(config, "org.dbpedia.spotlight.namespace.ontology",
+                "org.dbpedia.spotlight.default_ontology", DEFAULT_ONTOLOGY_NAMESPACE);
+        i18nLanguageCode = config.getProperty("org.dbpedia.spotlight.language_i18n_code", DEFAULT_LANGUAGE_I18N_CODE);
 
         //Read the spotter configuration from the properties file
         spotterConfiguration = new SpotterConfiguration(fileName);
@@ -316,6 +308,32 @@ public class SpotlightConfiguration {
         }
         //...
 
+    }
+
+    private String getProp(Properties config, String property, String deprecatedProperty, String defaultVal) {
+        String prop = config.getProperty(property);
+        String deprProp = config.getProperty(deprecatedProperty);
+
+        if (deprProp != null) {
+            String msg = "property " + deprecatedProperty + " is deprecated";
+
+            if (prop != null) {
+                msg += "; is overwritten by " + property;
+            } else {
+                msg += "; please use " + property;
+            }
+            LOG.warn(msg);
+        }
+
+        if (prop != null) {
+            return prop;
+        }
+        else if (deprProp != null) {
+            return deprProp;
+        }
+        else {
+            return defaultVal;
+        }
     }
 
 

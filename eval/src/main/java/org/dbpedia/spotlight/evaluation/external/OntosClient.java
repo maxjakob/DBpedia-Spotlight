@@ -200,8 +200,8 @@ public class OntosClient extends AnnotationClient {
                String uri = sameAsIds.getString(i);
                sameAs.add(uri);
                // If there is a proper link, then we add it.
-               if (uri.startsWith(SpotlightConfiguration.DEFAULT_NAMESPACE))
-                dbpediaSameAs = new DBpediaResource(uri.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, ""));
+               if (uri.startsWith(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE))
+                dbpediaSameAs = new DBpediaResource(uri.replace(SpotlightConfiguration.DEFAULT_RESOURCE_NAMESPACE, ""));
            }
        } catch (JSONException e) {
            LOG.error(e.getMessage());
