@@ -22,66 +22,16 @@ touch $dbpedia_workspace/foo && rm -f $dbpedia_workspace/foo || error_exit "ERRO
 set -e
 # Creating directories
 echo 'Creating directories...'
-if [ -e $dbpedia_workspace/dbpedia_data ]; then 
-    echo "$dbpedia_workspace"'/dbpedia_data/ already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/original ]; then 
-    echo "$dbpedia_workspace"'/dbpedia_data/original already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/original
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/original/wikipedia/  ]; then 
-    echo "$dbpedia_workspace"'/dbpedia_data/original/wikipedia/ already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/original/wikipedia/
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/original/wikipedia/$lang_i18n  ]; then 
-    echo "$dbpedia_workspace"'/dbpedia_data/original/wikipedia/'"$lang_i18n"' already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/original/wikipedia/$lang_i18n
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/original/dbpedia  ]; then 
-    echo "$dbpedia_workspace"'/dbpedia_data/original/dbpedia already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/original/dbpedia
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/original/dbpedia/$lang_i18n  ]; then 
-    echo "$dbpedia_workspace"'/dbpedia_data/original/dbpedia/'"$lang_i18n"'already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/original/dbpedia/$lang_i18n
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/data  ]; then 
-    echo "$dbpedia_workspace"'/data already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/data
-fi
-
-
-if [ -e $dbpedia_workspace/dbpedia_data/data/output  ]; then
-    echo "$dbpedia_workspace"'/data/output already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/data/output
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/data/opennlp  ]; then 
-    echo "$dbpedia_workspace"'/data/opennlp already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/data/opennlp
-fi
-
-if [ -e $dbpedia_workspace/dbpedia_data/data/opennlp/$language  ]; then 
-    echo "$dbpedia_workspace"'/data/opennlp already exists.'
-else
-    mkdir $dbpedia_workspace/dbpedia_data/data/opennlp/$language
-fi
+mkdir -p $dbpedia_workspace/dbpedia_data
+mkdir -p $dbpedia_workspace/dbpedia_data/original
+mkdir -p $dbpedia_workspace/dbpedia_data/original/wikipedia/
+mkdir -p $dbpedia_workspace/dbpedia_data/original/wikipedia/$lang_i18n
+mkdir -p $dbpedia_workspace/dbpedia_data/original/dbpedia
+mkdir -p $dbpedia_workspace/dbpedia_data/original/dbpedia/$lang_i18n
+mkdir -p $dbpedia_workspace/dbpedia_data/data
+mkdir -p $dbpedia_workspace/dbpedia_data/data/output
+mkdir -p $dbpedia_workspace/dbpedia_data/data/opennlp
+mkdir -p $dbpedia_workspace/dbpedia_data/data/opennlp/$language
 set +e
 
 
