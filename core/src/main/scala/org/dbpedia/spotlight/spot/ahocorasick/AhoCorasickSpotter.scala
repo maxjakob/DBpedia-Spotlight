@@ -117,7 +117,7 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
   private def filter(result: Seq[Match[String]], originalText: String, pattern: String): Seq[Match[String]] = {
 
     var chunk: Match[String] = null
-    var chunkStart = 0
+    var chunkStartPosition = 0
     var chunkLength = -1
     var lastChunk = -1;
     val buffer: ListBuffer[Match[String]] = ListBuffer()
@@ -132,7 +132,7 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
 
       //Trying to get the bigger Match checking the chunk start position
       if (resultArray.actual.length > chunkLength &&
-        resultArray.start >= chunkStart &&
+        resultArray.start >= chunkStartPosition &&
         lastChunk <= resultArray.start) {
         //Storing the good chunk
         chunk = resultArray
@@ -140,23 +140,23 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
         lastChunk = resultArray.start
 
       } else if (lastChunk != resultArray.start &&
-        resultArray.start >= chunkStart &&
+        resultArray.start >= chunkStartPosition &&
         chunk !=null) {
 
         //Here chunkStart and lastChunk are setted to ignore Match's repetition
         // E.g
         // Match(13,Dilma Rousseff,Dilma Rousseff,)
         // Only sentences after 27º position is relevant when this chunk is selected as good chunk
-        chunkStart = chunk.start + chunk.actual.length
+        chunkStartPosition = chunk.start + chunk.actual.length
 
         // println(chunk)
         //Checking if is a complete word using a regex pattern
         if ((chunk.start == 0 || originalText.charAt(chunk.start - 1).toString.matches(pattern)) &&
-            (chunkStart >= originalText.length || originalText.charAt(chunkStart).toString.matches(pattern)))
+            (chunkStartPosition >= originalText.length || originalText.charAt(chunkStartPosition).toString.matches(pattern)))
           buffer.append(chunk)
 
-        chunkStart= chunkStart -1
-        lastChunk = chunkStart
+        chunkStartPosition= chunkStartPosition -1
+        lastChunk = chunkStartPosition
         //reset control variables
         chunkLength = -1
         chunk = null
