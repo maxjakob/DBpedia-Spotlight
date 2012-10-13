@@ -209,6 +209,27 @@
             <artifactId>scalatest_2.9.1</artifactId>
         </dependency>
 
+
+        <!--
+            Fixed dependency: scala-aho-corasick implementation
+        -->
+        <dependency>
+            <groupId>scala.ahocorasick</groupId>
+            <artifactId>library</artifactId>
+            <version>0.1</version>
+            <systemPath>${project.basedir}/../lib/scala-aho-corasick-0.1.jar</systemPath>
+            <scope>system</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.scalaz</groupId>
+            <artifactId>scalaz-core_${scala.compiler.version}</artifactId>
+            <version>6.0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.lucene</groupId>
+            <artifactId>lucene-analyzers</artifactId>
+            <version>3.6.0</version>
+        </dependency>
     </dependencies>
 
 </project>

@@ -46,6 +46,7 @@ public class SpotterConfiguration {
 
     Properties config = new Properties();
     protected String spotterFile    = "";
+    private String  spotterSurfaceForms = "";
 
     private Map<String, String> openNLPModelsURI = new HashMap<String, String>(3);
 
@@ -57,7 +58,8 @@ public class SpotterConfiguration {
         KeyphraseSpotter,
         OpenNLPChunkerSpotter,
         WikiMarkupSpotter,
-        SpotXmlParser
+        SpotXmlParser,
+        AhoCorasickSpotter
     }
 
 
@@ -80,6 +82,16 @@ public class SpotterConfiguration {
             spotterFile = config.getProperty("org.dbpedia.spotlight.spot.dictionary").trim();
             if(!new File(spotterFile).isFile()) {
                 throw new ConfigurationException("Cannot find spotter file "+spotterFile);
+            }
+        }
+
+        //Validate AhoCorasickSpotter
+        if(spotters.contains(SpotterPolicy.AhoCorasickSpotter))
+        {
+            //Load spotter configuration:
+            spotterSurfaceForms = config.getProperty("org.dbpedia.spotlight.spot.ahocorasick.surfaceforms").trim();
+            if(!new File(spotterSurfaceForms).isFile()) {
+                throw new ConfigurationException("Cannot find surfaceForms file "+spotterSurfaceForms);
             }
         }
 
@@ -182,6 +194,10 @@ public class SpotterConfiguration {
 
     public String getSpotterFile() {
         return spotterFile;
+    }
+
+    public String getSpotterSurfaceForms(){
+        return spotterSurfaceForms;
     }
 
     public String getOpenNLPModelDir() {
