@@ -46,7 +46,7 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
    *
    */
   def extract(text: Text): java.util.List[SurfaceFormOccurrence] = {
-    var results = finder.find(text.text);
+    val results = finder.find(text.text)
 
     val buffer: ListBuffer[SurfaceFormOccurrence] = ListBuffer()
 
@@ -178,34 +178,24 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
     } else {
       name
     }
-
   }
 
   def setName(newName: String) {
-    name = newName;
+    name = newName
   }
 }
 
 object AhoCorasickSpotter {
   /**
    * Build an  AhoCorasick trie from surface forms file
-   * @param sfSet
+   * @param surfaceForms
    * @param caseSensitive  case sensitive: true or false?
    */
-  def fromSurfaceForms(sfSet: Iterator[String], caseSensitive: Boolean): AhoCorasickBuilder[String] = {
+  def fromSurfaceForms(surfaceForms: TraversableOnce[String], caseSensitive: Boolean, overlap: Boolean): AhoCorasickSpotter = {
+    val builder = AhoCorasickBuilder[String](surfaceForms.map(Data(_, "")).toSeq,
+      if (caseSensitive) _.toChar else _.toLower)
 
-    val buf: ListBuffer[Data[String]] = ListBuffer()
-
-    sfSet.foreach(
-      validChunk => buf.+=:(Data(validChunk, ""))
-    )
-
-    AhoCorasickBuilder.apply[String](buf.toSeq,
-      if (caseSensitive)
-        _.toChar
-      else
-        _.toLower
-    )
+    new AhoCorasickSpotter(builder, overlap)
   }
 
 }

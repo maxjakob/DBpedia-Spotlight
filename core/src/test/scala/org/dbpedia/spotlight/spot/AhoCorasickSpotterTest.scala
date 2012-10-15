@@ -28,7 +28,7 @@ class AhoCorasickSpotterTest extends FlatSpec with ShouldMatchers {
   if (sourceChunks == null)
     println("\n * Resource file with the name " + fileName + " was not found.Please,  check it and try again * \n")
 
-  var masterTest = new AhoCorasickSpotter(AhoCorasickSpotter.fromSurfaceForms(sourceChunks.getLines(), caseSensitive), overlap)
+  var masterTest = AhoCorasickSpotter.fromSurfaceForms(sourceChunks.getLines(), caseSensitive, overlap)
   sourceChunks.close()
 
   var text = "What's Up? is a rock song written by Linda Perry for 4 Non Blondes' debut album Bigger, Better, Faster, More! (1992)"
