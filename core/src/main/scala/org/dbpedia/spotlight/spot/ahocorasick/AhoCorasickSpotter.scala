@@ -127,7 +127,7 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
     //println(originalText)
 
     resultsArray.foreach(resultArray => {
-      println(resultArray)
+      //println(resultArray)
       var position = resultArray.start + resultArray.actual.length;
 
       if ((resultArray.start == 0 || originalText.charAt(resultArray.start - 1).toString.matches(pattern)) &&
