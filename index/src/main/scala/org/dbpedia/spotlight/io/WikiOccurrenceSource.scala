@@ -29,87 +29,11 @@ import org.dbpedia.extraction.util.Language
  * Loads Occurrences from a wiki dump.
  */
 
-object WikiOccurrenceSource
-{
-    private val LOG = LogFactory.getLog(this.getClass)
+object WikiOccurrenceSource extends WikipediaOccurrenceSourceFactory {
 
-    // split at paragraphs 
-    val splitDocumentRegex = """(\n|(<br\s?/?>))(</?\w+?\s?/?>)?(\n|(<br\s?/?>))+"""
+    protected def occurrenceSource(extractionSource: Source) = new WikiOccurrenceSource(extractionSource)
 
-    /**
-     * Creates an DBpediaResourceOccurrence Source from a dump file.
-     */
-    def fromXMLDumpFile(dumpFile : File, language: Language) : OccurrenceSource =
-    {
-        new WikiOccurrenceSource(XMLSource.fromFile(dumpFile, language, _.namespace == Namespace.Main))
-    }
-
-    /**
-     * Creates an DBpediaResourceOccurrence Source from an XML root element.
-     */
-    def fromXML(xml : Elem, language: Language) : OccurrenceSource  =
-    {
-        new WikiOccurrenceSource(XMLSource.fromXML(xml, language))
-    }
-
-    /**
-     * Creates an DBpediaResourceOccurrence Source from an XML root element string.
-     */
-    def fromXML(xmlString : String, language: Language) : OccurrenceSource  =
-    {
-        val xml : Elem = XML.loadString("<dummy>" + xmlString + "</dummy>")  // dummy necessary: when a string "<page><b>text</b></page>" is given, <page> is the root tag and can't be found with the command  xml \ "page"
-        new WikiOccurrenceSource(XMLSource.fromXML(xml, language))
-    }
-
-    /**
-     * DBpediaResourceOccurrence Source which reads from a wiki pages source.
-     */
-    private class WikiOccurrenceSource(wikiPages : Source) extends OccurrenceSource
-    {
-        val wikiParser = WikiParser()
-
-        override def foreach[U](f : DBpediaResourceOccurrence => U) : Unit =
-        {
-            var pageCount = 0
-            var occCount = 0
-
-            for (wikiPage <- wikiPages)
-            {
-                // clean the wiki markup from everything but links
-                val cleanSource = WikiMarkupStripper.stripEverything(wikiPage.source)
-
-                // parse the (clean) wiki page
-                val pageNode = wikiParser( WikiPageUtil.copyWikiPage(wikiPage, cleanSource) )
-
-                // exclude redirect and disambiguation pages
-                if (!pageNode.isRedirect && !pageNode.isDisambiguation) {
-
-                    // split the page node into paragraphs
-                    val paragraphs = NodeUtil.splitNodes(pageNode.children, splitDocumentRegex)
-                    var paragraphCount = 0
-                    for (paragraph <- paragraphs)
-                    {
-                        paragraphCount += 1
-                        val idBase = pageNode.title.encoded+"-p"+paragraphCount
-                        getOccurrences(paragraph, idBase).foreach{occ => occCount += 1
-                                                                         f(occ)}
-                    }
-
-                    pageCount += 1
-                    if (pageCount %5000 == 0) {
-                        LOG.debug("Processed %d Wikipedia definition pages (avarage %.2f links per page)".format(pageCount, occCount/pageCount.toDouble))
-                    }
-                    if (pageCount %100000 == 0) {
-                        LOG.info("Processed %d Wikipedia definition pages (avarage %.2f links per page)".format(pageCount, occCount/pageCount.toDouble))
-                    }
-
-                }
-            }
-        }
-    }
-
-    def getOccurrences(paragraph : List[Node], occurrenceIdBase : String) : List[DBpediaResourceOccurrence] =
-    {
+    def getOccurrences(paragraph : List[Node], occurrenceIdBase : String) : List[DBpediaResourceOccurrence] = {
         var paragraphText = ""
 
         // collect URIs, surface forms and their offset in this paragraph
@@ -150,3 +74,53 @@ object WikiOccurrenceSource
         }
     }
 }
+
+    /**
+     * DBpediaResourceOccurrence Source which reads from a wiki pages source.
+     */
+    class WikiOccurrenceSource(wikiPages : Source) extends OccurrenceSource {
+        private val LOG = LogFactory.getLog(this.getClass)
+
+        // split at paragraphs
+        val splitDocumentRegex = """(\n|(<br\s?/?>))(</?\w+?\s?/?>)?(\n|(<br\s?/?>))+"""
+
+
+        val wikiParser = WikiParser()
+
+        override def foreach[U](f : DBpediaResourceOccurrence => U) {
+            var pageCount = 0
+            var occCount = 0
+
+            for (wikiPage <- wikiPages) {
+                // clean the wiki markup from everything but links
+                val cleanSource = WikiMarkupStripper.stripEverything(wikiPage.source)
+
+                // parse the (clean) wiki page
+                val pageNode = wikiParser( WikiPageUtil.copyWikiPage(wikiPage, cleanSource) )
+
+                // exclude redirect and disambiguation pages
+                if (!pageNode.isRedirect && !pageNode.isDisambiguation) {
+
+                    // split the page node into paragraphs
+                    val paragraphs = NodeUtil.splitNodes(pageNode.children, splitDocumentRegex)
+                    var paragraphCount = 0
+                    for (paragraph <- paragraphs) {
+                        paragraphCount += 1
+                        val idBase = pageNode.title.encoded+"-p"+paragraphCount
+                        WikiOccurrenceSource.getOccurrences(paragraph, idBase).foreach{occ => occCount += 1
+                                                                         f(occ)}
+                    }
+
+                    pageCount += 1
+                    if (pageCount %5000 == 0) {
+                        LOG.debug("Processed %d Wikipedia definition pages (avarage %.2f links per page)".format(pageCount, occCount/pageCount.toDouble))
+                    }
+                    if (pageCount %100000 == 0) {
+                        LOG.info("Processed %d Wikipedia definition pages (avarage %.2f links per page)".format(pageCount, occCount/pageCount.toDouble))
+                    }
+
+                }
+            }
+        }
+    }
+

@@ -19,121 +19,22 @@ package org.dbpedia.spotlight.io
 import org.dbpedia.spotlight.string.WikiMarkupStripper
 import org.dbpedia.spotlight.model._
 import org.dbpedia.extraction.wikiparser._
-import org.dbpedia.extraction.sources.{WikiPage, Source, XMLSource}
+import org.dbpedia.extraction.sources.Source
 import org.apache.commons.logging.LogFactory
-import java.io.{File}
-import xml.{XML, Elem}
-import org.dbpedia.extraction.util.Language
 
 /**
  * Loads descriptive text that occurs around entries in disambiguation pages from a wiki dump.
  * @author maxjakob
  */
-object DisambiguationContextSource
-{
-    private val LOG = LogFactory.getLog(this.getClass)
+object DisambiguationContextSource extends WikipediaOccurrenceSourceFactory {
 
-    /**
-     * Creates an DBpediaResourceOccurrence Source from a dump file.
-     */
-    def fromXMLDumpFile(dumpFile : File, language: Language) : OccurrenceSource =
-    {
-        new DisambiguationContextSource(XMLSource.fromFile(dumpFile, language, _.namespace == Namespace.Main))
-    }
+    protected def occurrenceSource(extractionSource: Source) = new DisambiguationContextSource(extractionSource)
 
-    /**
-     * Creates an DBpediaResourceOccurrence Source from a dump file. This Source returns each Occurrence n times!
-     */
-    def fromXMLDumpFile(dumpFile : File, n : Int, language: Language) : OccurrenceSource =
-    {
-        new DisambiguationContextSource(XMLSource.fromFile(dumpFile, language, _.namespace == Namespace.Main), n)
-    }
-
-    /**
-     * Creates an DBpediaResourceOccurrence Source from an XML root element.
-     */
-    def fromXML(xml : Elem, language: Language) : OccurrenceSource  =
-    {
-        new DisambiguationContextSource(XMLSource.fromXML(xml, language))
-    }
-
-    /**
-     * Creates an DBpediaResourceOccurrence Source from an XML root element string.
-     */
-    def fromXML(xmlString : String, language: Language) : OccurrenceSource  =
-    {
-        val xml : Elem = XML.loadString("<dummy>" + xmlString + "</dummy>")  // dummy necessary: when a string "<page><b>text</b></page>" is given, <page> is the root tag and can't be found with the command  xml \ "page"
-        new DisambiguationContextSource(XMLSource.fromXML(xml, language))
-    }
-
-    def wikiPageCopy(wikiPage: WikiPage, newSource: String) = {
-        new WikiPage(wikiPage.title, wikiPage.redirect, wikiPage.id, wikiPage.revision, wikiPage.timestamp, newSource)
-    }
-
-    /**
-     * DBpediaResourceOccurrence Source which reads from a wiki pages source.
-     */
-    private class DisambiguationContextSource(wikiPages : Source, multiply : Int=1) extends OccurrenceSource
-    {
-        val splitDisambiguations = """\n"""
-        
-        val wikiParser = WikiParser()
-
-        override def foreach[U](f : DBpediaResourceOccurrence => U) : Unit =
-        {
-            var pageCount = 0
-            var occCount = 0
-
-            for (wikiPage <- wikiPages)
-            {
-                // clean the wiki markup from everything but links
-                val cleanSource = WikiMarkupStripper.stripEverythingButBulletPoints(wikiPage.source)
-
-                // parse the (clean) wiki page
-                val pageNode = wikiParser( WikiPageUtil.copyWikiPage(wikiPage, cleanSource) )
-
-                if (pageNode.isDisambiguation) {
-                    val surfaceForm = new SurfaceForm(wikiPage.title.decoded.replace(" (disambiguation)", "")) //TODO language-specific
-
-                    // split the page node into list items
-                    val listItems = NodeUtil.splitNodes(pageNode.children, splitDisambiguations)
-                    var itemsCount = 0
-                    for (listItem <- listItems)
-                    {
-                        itemsCount += 1
-                        val id = pageNode.title.encoded+"-pl"+itemsCount
-                        getOccurrence(listItem, surfaceForm, id) match {
-                            case Some(occ) => (1 to multiply).foreach(i => f( occ )) ; occCount += 1
-                            case None =>
-                        }
-                    }
-
-                    pageCount += 1
-                    if (pageCount %5000 == 0) {
-                        LOG.debug("Processed %d Wikipedia definition pages (avarage %.2f disambiguation sentences per page".format(pageCount, occCount/pageCount.toDouble))
-                    }
-                    if (pageCount %100000 == 0) {
-                        LOG.info("Processed %d Wikipedia definition pages (avarage %.2f disambiguation sentences per page".format(pageCount, occCount/pageCount.toDouble))
-                    }
-
-                }
-            }
-        }
-    }
-
-    private def isDisambiguationUri(destination : WikiTitle, surfaceForm : SurfaceForm) : Boolean = {
-        destination.namespace == Namespace.Main &&
-            // same heuristic as in DBpeida extraction
-            (destination.decoded.contains(surfaceForm.name) || isAcronym(surfaceForm.name, destination.decoded))    
-    }
-
-    def getOccurrence(listItem : List[Node], surfaceForm : SurfaceForm, id : String) : Option[DBpediaResourceOccurrence] =
-    {
+    def getOccurrence(listItem : List[Node], surfaceForm : SurfaceForm, id : String) : Option[DBpediaResourceOccurrence] = {
         var uri = ""
         var disambiguationText = ""
 
-        for (node <- listItem)
-        {
+        for (node <- listItem) {
             node match {
                 // for text nodes, collect the paragraph text
                 case textNode : TextNode => disambiguationText += textNode.text
@@ -150,47 +51,86 @@ object DisambiguationContextSource
             }
         }
 
-        if (disambiguationText.startsWith("*") && uri.nonEmpty)
-        {
+        if (disambiguationText.startsWith("*") && uri.nonEmpty) {
             disambiguationText = disambiguationText.replaceFirst("""^[\*\s]+""", "")
             val cutoff = math.max(disambiguationText.indexOf("""\n"""), disambiguationText.length)
             val textInstance = new Text(disambiguationText.slice(0, cutoff).replaceAll("""\s""", " "))
             val offset = textInstance.text.toLowerCase.indexOf(surfaceForm.name.toLowerCase)
             Some(new DBpediaResourceOccurrence(id, new DBpediaResource(uri), surfaceForm, textInstance, offset))
         }
-        else
-        {
+        else {
             None
         }
     }
-        
+
+    private def isDisambiguationUri(destination : WikiTitle, surfaceForm : SurfaceForm) : Boolean = {
+        destination.namespace == Namespace.Main &&
+            // same heuristic as in DBpeida extraction
+            (destination.decoded.contains(surfaceForm.name) || isAcronym(surfaceForm.name, destination.decoded))
+    }
 
     // copied from DBpedia extraction framework
-    private def isAcronym(acronym : String, destination : String) : Boolean =
-    {
+    private def isAcronym(acronym : String, destination : String) : Boolean = {
         if (acronym != acronym.toUpperCase) return false
 
         val destinationWithoutDash = destination.replace("-", " ")
         val destinationList = if (destinationWithoutDash.contains(" ")) destinationWithoutDash.split(" ")
-                              else destinationWithoutDash.split("")
+        else destinationWithoutDash.split("")
 
         acronym.length == destinationList.foldLeft(0) ( (matchCount, word) =>
             if (matchCount < acronym.length && word.toUpperCase.startsWith(acronym(matchCount).toString))
                 matchCount + 1
             else
                 matchCount)
-
     }
+}
 
+/**
+ * DBpediaResourceOccurrence Source which reads from a wiki pages source.
+ */
+class DisambiguationContextSource(wikiPages : Source, multiply : Int=1) extends OccurrenceSource {
 
+    private val LOG = LogFactory.getLog(this.getClass)
 
+    val splitDisambiguations = """\n"""
 
+    val wikiParser = WikiParser()
 
-    //test
-    def main(args : Array[String]) {
-        val disambiguationSource = fromXMLDumpFile(new File("c:\\wikipediaDump\\en\\20100312\\enwiki-20100312-pages-articles.xml"), Language("en"))
-        FileOccurrenceSource.writeToFile(disambiguationSource, new File("data/disambiguationOccurrences.tsv"))
+    override def foreach[U](f : DBpediaResourceOccurrence => U) {
+        var pageCount = 0
+        var occCount = 0
+
+        for (wikiPage <- wikiPages) {
+            // clean the wiki markup from everything but links
+            val cleanSource = WikiMarkupStripper.stripEverythingButBulletPoints(wikiPage.source)
+
+            // parse the (clean) wiki page
+            val pageNode = wikiParser( WikiPageUtil.copyWikiPage(wikiPage, cleanSource) )
+
+            if (pageNode.isDisambiguation) {
+                val surfaceForm = new SurfaceForm(wikiPage.title.decoded.replace(" (disambiguation)", "")) //TODO language-specific
+
+                // split the page node into list items
+                val listItems = NodeUtil.splitNodes(pageNode.children, splitDisambiguations)
+                var itemsCount = 0
+                for (listItem <- listItems) {
+                    itemsCount += 1
+                    val id = pageNode.title.encoded+"-pl"+itemsCount
+                    DisambiguationContextSource.getOccurrence(listItem, surfaceForm, id) match {
+                        case Some(occ) => (1 to multiply).foreach(i => f( occ )) ; occCount += 1
+                        case None =>
+                    }
+                }
+
+                pageCount += 1
+                if (pageCount %5000 == 0) {
+                    LOG.debug("Processed %d Wikipedia definition pages (avarage %.2f disambiguation sentences per page".format(pageCount, occCount/pageCount.toDouble))
+                }
+                if (pageCount %100000 == 0) {
+                    LOG.info("Processed %d Wikipedia definition pages (avarage %.2f disambiguation sentences per page".format(pageCount, occCount/pageCount.toDouble))
+                }
+            }
+        }
     }
-
 
 }

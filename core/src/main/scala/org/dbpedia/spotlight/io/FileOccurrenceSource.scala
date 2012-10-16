@@ -37,11 +37,6 @@ object FileOccurrenceSource
     def fromFile(tsvFile : File) : OccurrenceSource = new FileOccurrenceSource(tsvFile)
 
     /**
-     * Creates a Definition Source from a TSV file.
-     */
-    def wikiPageContextFromFile(tsvFile : File) : WikiPageSource = new FileWikiPageSource(tsvFile)
-
-    /**
      * Saves DBpediaResourceOccurrence to a tab-separated file.
      */
     def writeToFile(occSource : Traversable[DBpediaResourceOccurrence], tsvFile : File) {
@@ -140,31 +135,4 @@ object FileOccurrenceSource
         }
     }
 
-    private class FileWikiPageSource(tsvFile : File) extends WikiPageSource
-    {
-        override def foreach[U](f : WikiPageContext => U) : Unit =
-        {
-            var input : InputStream = new FileInputStream(tsvFile)
-            if (tsvFile.getName.endsWith(".gz")) {
-                input = new GZIPInputStream(input)
-            }
-
-            for (line <- Source.fromInputStream(input, "UTF-8").getLines) {
-                try {
-                    val elements = line.trim.split("\t")
-                    if (elements.length == 2)
-                    {
-                        val res = new DBpediaResource(elements(0), 1)
-                        val definitionText = new Text(elements(1))
-
-                        val pageContext = new WikiPageContext(res, definitionText)
-                        f(pageContext)
-                    }
-                }
-                catch {
-                    case err : Exception => {System.err.println(line);System.err.println(err.getClass + "\n" + err.getMessage)}
-                }
-            }
-        }
-    }
 }

@@ -16,71 +16,19 @@ package org.dbpedia.spotlight.io
  * limitations under the License.
  */
 
-import java.io.File
-import xml.Elem
-import org.dbpedia.extraction.sources.{Source, XMLSource}
+import org.dbpedia.extraction.sources.Source
 import org.dbpedia.spotlight.string.WikiMarkupStripper
 import org.dbpedia.extraction.wikiparser._
-import org.dbpedia.spotlight.model.{DBpediaResource, Text, WikiPageContext}
-import org.dbpedia.extraction.util.Language
-
-/**
- * Created by IntelliJ IDEA.
- * User: Max
- * Date: 05-Jul-2010
- * Time: 10:32:58
- * To change this template use File | Settings | File Templates.
- */
+import org.dbpedia.spotlight.model._
+import org.dbpedia.extraction.wikiparser.TextNode
+import org.dbpedia.extraction.wikiparser.InternalLinkNode
 
 
-object WikiPageContextSource
-{
-    /**
-     * Creates an DBpediaResourceOccurrence Source from a dump file.
-     */
-    def fromXMLDumpFile(dumpFile : File, language: Language) : WikiPageSource =
-    {
-        new WikipediaPageContextSource(XMLSource.fromFile(dumpFile, language, _.namespace == Namespace.Main))
-    }
+object WikiPageContextSource extends WikipediaOccurrenceSourceFactory {
 
-    /**
-     * Creates an DBpediaResourceOccurrence Source from an XML root element.
-     */
-    def fromXML(xml : Elem, language: Language) : WikiPageSource =
-    {
-        new WikipediaPageContextSource(XMLSource.fromXML(xml, language))
-    }
+    protected def occurrenceSource(extractionSource: Source) = new WikiPageContextSource(extractionSource)
 
-    /**
-     * DBpediaResourceOccurrence Source which reads from a wiki pages source.
-     */
-    private class WikipediaPageContextSource(wikiPages : Source) extends WikiPageSource
-    {
-        val wikiParser = WikiParser()
-
-        override def foreach[U](f : WikiPageContext => U) : Unit =
-        {
-            for (wikiPage <- wikiPages)
-            {
-                // clean the wiki markup from everything but links
-                val cleanSource = WikiMarkupStripper.stripEverything(wikiPage.source)
-
-                // parse the (clean) wiki page
-                val pageNode = wikiParser( WikiPageUtil.copyWikiPage(wikiPage, cleanSource) )
-
-                // exclude redirects, disambiguation pages and other undesired pages (e.g. Lists)
-                if (!pageNode.isRedirect && !pageNode.isDisambiguation)
-                {
-                    val pageContext = new Text( getPageText(pageNode) )
-                    val resource = new DBpediaResource(pageNode.title.encoded)
-                    f( new WikiPageContext(resource, pageContext) )
-                }
-            }
-        }
-    }
-
-    def getPageText(node : Node) : String =
-    {
+    def getPageText(node : Node) : String = {
         node.children.map{
             _ match
             {
@@ -90,6 +38,32 @@ object WikiPageContextSource
             }
         }.mkString(" ").replaceAll("""\n""", " ").replaceAll("""\s""", " ")
     }
-        
-
 }
+
+/**
+ * DBpediaResourceOccurrence Source which reads from a wiki pages source.
+ */
+class WikiPageContextSource(wikiPages : Source) extends OccurrenceSource {
+    val wikiParser = WikiParser()
+
+    override def foreach[U](f : DBpediaResourceOccurrence  => U) {
+        for (wikiPage <- wikiPages) {
+            // clean the wiki markup from everything but links
+            val cleanSource = WikiMarkupStripper.stripEverything(wikiPage.source)
+
+            // parse the (clean) wiki page
+            val pageNode = wikiParser( WikiPageUtil.copyWikiPage(wikiPage, cleanSource) )
+
+            // exclude redirects, disambiguation pages
+            if (!pageNode.isRedirect && !pageNode.isDisambiguation) {
+                val pageContext = new Text( WikiPageContextSource.getPageText(pageNode) )
+                val resource = new DBpediaResource(pageNode.title.encoded)
+                val surfaceForm = Factory.SurfaceForm.fromWikiPageTitle(pageNode.title.decoded, false)
+                f( new DBpediaResourceOccurrence(pageNode.id.toString, resource, surfaceForm, pageContext, -1) )
+            }
+        }
+    }
+}
+
+
+
