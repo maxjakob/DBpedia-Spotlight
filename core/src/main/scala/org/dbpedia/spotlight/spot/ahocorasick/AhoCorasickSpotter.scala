@@ -67,10 +67,12 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
 
 
   /**
-   * Comparator by Match start point
+   * Comparator by Match start point and length
    */
-  private object LengthOrdering extends Ordering[Match[String]] {
-    def compare(matchA: Match[String], matchB: Match[String]) = matchA.start compare matchB.start
+  object StartLengthOrdering extends Ordering[Match[String]] {
+    def compare(matchA: Match[String], matchB: Match[String]): Int = {
+      Ordering.Tuple2(Ordering.Int, Ordering.Int).compare((matchA.start, matchB.actual.length), (matchB.start, matchA.actual.length))
+    }
   }
 
 
@@ -117,54 +119,38 @@ class AhoCorasickSpotter(val builder: AhoCorasickBuilder[String], val overlap: B
   private def filter(result: Seq[Match[String]], originalText: String, pattern: String): Seq[Match[String]] = {
 
     var chunk: Match[String] = null
-    var chunkStartPosition = 0
-    var chunkLength = -1
-    var lastChunk = -1;
     val buffer: ListBuffer[Match[String]] = ListBuffer()
     val resultsArray = result.toArray[Match[String]]
-    //Sorting the array by Match start position
-    Sorting.quickSort(resultsArray)(LengthOrdering)
 
+    Sorting.quickSort(resultsArray)(StartLengthOrdering)
+
+    //println(originalText)
 
     resultsArray.foreach(resultArray => {
-      //Initialize the lastChunk position with the first Match
-      if (lastChunk.equals(-1)) lastChunk = resultArray.start
+      println(resultArray)
+      var position = resultArray.start + resultArray.actual.length;
 
-      //Trying to get the bigger Match checking the chunk start position
-      if (resultArray.actual.length > chunkLength &&
-        resultArray.start >= chunkStartPosition &&
-        lastChunk <= resultArray.start) {
-        //Storing the good chunk
-        chunk = resultArray
-        chunkLength = resultArray.actual.length
-        lastChunk = resultArray.start
-
-      } else if (lastChunk != resultArray.start &&
-        resultArray.start >= chunkStartPosition &&
-        chunk !=null) {
-
-        //Here chunkStart and lastChunk are setted to ignore Match's repetition
-        // E.g
-        // Match(13,Dilma Rousseff,Dilma Rousseff,)
-        // Only sentences after 27º position is relevant when this chunk is selected as good chunk
-        chunkStartPosition = chunk.start + chunk.actual.length
-
-        // println(chunk)
-        //Checking if is a complete word using a regex pattern
-        if ((chunk.start == 0 || originalText.charAt(chunk.start - 1).toString.matches(pattern)) &&
-            (chunkStartPosition >= originalText.length || originalText.charAt(chunkStartPosition).toString.matches(pattern)))
-          buffer.append(chunk)
-
-        chunkStartPosition= chunkStartPosition -1
-        lastChunk = chunkStartPosition
-        //reset control variables
-        chunkLength = -1
-        chunk = null
+      if ((resultArray.start == 0 || originalText.charAt(resultArray.start - 1).toString.matches(pattern)) &&
+        (position >= originalText.length ||
+         originalText.charAt(position).toString.matches(pattern))) {
+        if (chunk == null) {
+          buffer.append(resultArray)
+          chunk = resultArray
+          //println("selected:" + resultArray)
+        }
+        else if (chunk.start + chunk.actual.length < resultArray.start) {
+          buffer.append(resultArray)
+          chunk = resultArray
+          //println("selected:" + resultArray)
+        }
       }
     }
     )
 
+
     buffer.toSeq
+
+
   }
 
   /**
