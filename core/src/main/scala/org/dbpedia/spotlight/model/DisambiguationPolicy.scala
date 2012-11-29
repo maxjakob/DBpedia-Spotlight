@@ -18,6 +18,8 @@
 
 package org.dbpedia.spotlight.model
 
+private class DisambiguationPolicy extends Enumeration
+
 object DisambiguationPolicy extends Enumeration {
     type DisaambiguationPolicy = Value
     val Document, Occurrences, CuttingEdge, Default = Value

@@ -26,6 +26,7 @@ import java.io._
 import java.net.URI
 import java.net.URISyntaxException
 import java.util._
+import org.apache.commons.lang.NotImplementedException
 
 /**
  * Holds all configuration parameters needed to run the DBpedia Spotlight Server
@@ -37,126 +38,53 @@ import java.util._
  * @author pablomendes
  * @author maxjakob
  */
-object SpotlightConfiguration {
-    private var LOG: Log = LogFactory.getLog(classOf[SpotlightConfiguration])
-
-    var configFileName = ""
-
-    final val DEFAULT_TEXT: String = ""
-    final val DEFAULT_URL: String = ""
-    final val DEFAULT_CONFIDENCE: String = "0.1"
-    final val DEFAULT_SUPPORT: String = "10"
-    final val DEFAULT_TYPES: String = ""
-    final val DEFAULT_SPARQL: String = ""
-    final val DEFAULT_POLICY: String = "whitelist"
-    final val DEFAULT_COREFERENCE_RESOLUTION: String = "true"
-    @Deprecated var DEFAULT_RESOURCE_NAMESPACE: String = "http://dbpedia.org/resource/"
-    @Deprecated var DEFAULT_ONTOLOGY_NAMESPACE: String = "http://dbpedia.org/ontology/"
-    @Deprecated var DEFAULT_LANGUAGE_I18N_CODE: String = "en"
-    @Deprecated final val DEFAULT_STOPWORDS: Set[String] = new HashSet[_](Arrays.asList("a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with"))
-
-
-    def toString = "SpotlightConfiguration[configFileName=%s]".format(configFileName)
-
+case class SpotlightConfiguration(configFileName: String,
+                                  dbpediaOntologyNamespace: String,
+                                  language: String,
+                                  i18nLanguageCode: String,
+                                  contextIndexDirectory: String,
+                                  candidateMapDirectory: String,
+                                  candidateMapInMemory: Boolean,
+                                  similarityThresholds: List[Double],
+                                  similarityThresholdsFile: String,
+                                  taggerFile: String,
+                                  stopWordsFile: String,
+                                  stopWords: Set[String],
+                                  serverURI: String,
+                                  sparqlMainGraph: String,
+                                  sparqlEndpoint: String,
+                                  maxCacheSize: Long,
+                                  dbpediaResourceFactory: DBpediaResourceFactory,
+                                  analyzer: Analyzer,
+                                  spotterConfiguration: SpotterConfiguration,
+                                  disambiguatorConfiguration: DisambiguatorConfiguration) {
 }
 
-class SpotlightConfiguration {
-    def getDbpediaResourceNamespace: String = {
-        return dbpediaResourceNamespace
-    }
 
-    def getDbpediaOntologyNamespace: String = {
-        return dbpediaOntologyNamespace
-    }
+object SpotlightConfiguration {
 
-    def getLanguage: String = {
-        return language
-    }
+    private val LOG = LogFactory.getLog(SpotlightConfiguration.getClass)
 
-    def getI18nLanguageCode: String = {
-        return i18nLanguageCode
-    }
+    private var INSTANCE: SpotlightConfiguration = null
 
-    def isContextIndexInMemory: Boolean = {
-        return disambiguatorConfiguration.isContextIndexInMemory
-    }
 
-    def isCandidateMapInMemory: Boolean = {
-        return candidateMapInMemory
-    }
+    def apply(configFileName: String) {
+        this.configFileName = configFileName
 
-    def getServerURI: String = {
-        return serverURI
-    }
-
-    def getContextIndexDirectory: String = {
-        return disambiguatorConfiguration.getContextIndexDirectory
-    }
-
-    def getCandidateIndexDirectory: String = {
-        return candidateMapDirectory
-    }
-
-    def getSimilarityThresholds: List[Double] = {
-        return similarityThresholds
-    }
-
-    def getSparqlMainGraph: String = {
-        return sparqlMainGraph
-    }
-
-    def getSparqlEndpoint: String = {
-        return sparqlEndpoint
-    }
-
-    def getTaggerFile: String = {
-        return taggerFile
-    }
-
-    def getStopWords: Set[String] = {
-        return stopWords
-    }
-
-    def getMaxCacheSize: Long = {
-        return maxCacheSize
-    }
-
-    def getDBpediaResourceFactory: DBpediaResourceFactory = {
-        return dbpediaResourceFactory
-    }
-
-    def createDBpediaResourceFactory(driver: String, connector: String, user: String, password: String) {
-        dbpediaResourceFactory = new DBpediaResourceFactorySQL(driver, connector, user, password)
-    }
-
-    def getSpotterConfiguration: SpotterConfiguration = {
-        return spotterConfiguration
-    }
-
-    def getDisambiguatorConfiguration: DisambiguatorConfiguration = {
-        return disambiguatorConfiguration
-    }
-
-    def getAnalyzer: Analyzer = {
-        return analyzer
-    }
-
-    def this(fileName: String) {
-        this()
-        val config: Properties = new Properties
+        val config = new Properties
         try {
-            config.load(new FileInputStream(new File(fileName)))
+            config.load(new FileInputStream(new File(configFileName)))
         }
         catch {
             case e: IOException => {
-                throw new ConfigurationException("Cannot find configuration file " + fileName, e)
+                throw new ConfigurationException("Cannot read configuration file " + configFileName, e)
             }
         }
         dbpediaResourceNamespace = getProp(config, "org.dbpedia.spotlight.namespace.resource", "org.dbpedia.spotlight.default_namespace", DEFAULT_RESOURCE_NAMESPACE)
         dbpediaOntologyNamespace = getProp(config, "org.dbpedia.spotlight.namespace.ontology", "org.dbpedia.spotlight.default_ontology", DEFAULT_ONTOLOGY_NAMESPACE)
         i18nLanguageCode = config.getProperty("org.dbpedia.spotlight.language_i18n_code", DEFAULT_LANGUAGE_I18N_CODE)
-        spotterConfiguration = new SpotterConfiguration(fileName)
-        disambiguatorConfiguration = new DisambiguatorConfiguration(fileName)
+        spotterConfiguration = new SpotterConfiguration(configFileName)
+        disambiguatorConfiguration = new DisambiguatorConfiguration(configFileName)
         contextIndexDirectory = disambiguatorConfiguration.contextIndexDirectory
         candidateMapDirectory = config.getProperty("org.dbpedia.spotlight.candidateMap.dir", "").trim
         if (candidateMapDirectory == null || !new File(candidateMapDirectory).isDirectory) {
@@ -245,7 +173,7 @@ class SpotlightConfiguration {
         try {
             if (coreDbType == "jdbc") {
                 LOG.info("Core database from JDBC: " + coreDbConnector)
-                createDBpediaResourceFactory(coreJdbcDriver, coreDbConnector, coreDbUser, coreDbPassword)
+                dbpediaResourceFactory = new DBpediaResourceFactorySQL(coreJdbcDriver, coreDbConnector, coreDbUser, coreDbPassword)
             }
             else {
                 LOG.info("Core database from Lucene: " + contextIndexDirectory)
@@ -256,6 +184,8 @@ class SpotlightConfiguration {
                 LOG.warn("Tried to use core database provided, but failed. Will use Lucene index as core database.", e)
             }
         }
+
+        SpotlightConfiguration()
     }
 
     private def getProp(config: Properties, property: String, deprecatedProperty: String, defaultVal: String): String = {
@@ -282,29 +212,101 @@ class SpotlightConfiguration {
         }
     }
 
-    private var dbpediaResourceNamespace: String = null
-    private var dbpediaOntologyNamespace: String = null
-    private var language: String = null
-    private var i18nLanguageCode: String = null
-    protected var contextIndexDirectory: String = ""
-    protected var candidateMapDirectory: String = ""
-    protected var candidateMapInMemory: Boolean = true
-    protected var similarityThresholds: List[Double] = null
-    protected var similarityThresholdsFile: String = "similarity-thresholds.txt"
-    protected var taggerFile: String = ""
-    protected var stopWordsFile: String = ""
-    protected var stopWords: Set[String] = null
-    protected var serverURI: String = "http://localhost:2222/rest/"
-    protected var sparqlMainGraph: String = "http://dbpedia.org/sparql"
-    protected var sparqlEndpoint: String = "http://dbpedia.org"
-    protected var maxCacheSize: Long = Long.MAX_VALUE
-    private[model] var dbpediaResourceFactory: DBpediaResourceFactory = null
-    private[model] var analyzer: Analyzer = null
-    /**
-     * The Spotter configuration is read with the SpotlightConfiguration.
-     * However, to make the configuration more modular and readable, the
-     * configuration for Spotter and spot selection are stored in this object.
-     */
-    protected var spotterConfiguration: SpotterConfiguration = null
-    protected var disambiguatorConfiguration: DisambiguatorConfiguration = null
+
+
+
+    final val DEFAULT_TEXT: String = ""
+    final val DEFAULT_URL: String = ""
+    final val DEFAULT_CONFIDENCE: String = "0.1"
+    final val DEFAULT_SUPPORT: String = "10"
+    final val DEFAULT_TYPES: String = ""
+    final val DEFAULT_SPARQL: String = ""
+    final val DEFAULT_POLICY: String = "whitelist"
+    final val DEFAULT_COREFERENCE_RESOLUTION: String = "true"
+    @Deprecated var DEFAULT_RESOURCE_NAMESPACE: String = "http://dbpedia.org/resource/"
+    @Deprecated var DEFAULT_ONTOLOGY_NAMESPACE: String = "http://dbpedia.org/ontology/"
+    @Deprecated var DEFAULT_LANGUAGE_I18N_CODE: String = "en"
+    @Deprecated final val DEFAULT_STOPWORDS = Set("a", "an", "and", "are", "as", "at", "be", "but", "by", "for", "if", "in", "into", "is", "it", "no", "not", "of", "on", "or", "such", "that", "the", "their", "then", "there", "these", "they", "this", "to", "was", "will", "with")
+
+
+    def toString = "SpotlightConfiguration[configFileName=%s]".format(configFileName)
+
+    def getDBpediaResourceNamespace: String = {
+        return dbpediaResourceNamespace
+    }
+
+    def getDBpediaOntologyNamespace: String = {
+        return dbpediaOntologyNamespace
+    }
+
+    def getLanguage: String = {
+        return language
+    }
+
+    def getI18nLanguageCode: String = {
+        return i18nLanguageCode
+    }
+
+    def isContextIndexInMemory: Boolean = {
+        return disambiguatorConfiguration.isContextIndexInMemory
+    }
+
+    def isCandidateMapInMemory: Boolean = {
+        return candidateMapInMemory
+    }
+
+    def getServerURI: String = {
+        return serverURI
+    }
+
+    def getContextIndexDirectory: String = {
+        return disambiguatorConfiguration.getContextIndexDirectory
+    }
+
+    def getCandidateIndexDirectory: String = {
+        return candidateMapDirectory
+    }
+
+    def getSimilarityThresholds: List[Double] = {
+        return similarityThresholds
+    }
+
+    def getSparqlMainGraph: String = {
+        return sparqlMainGraph
+    }
+
+    def getSparqlEndpoint: String = {
+        return sparqlEndpoint
+    }
+
+    def getTaggerFile: String = {
+        return taggerFile
+    }
+
+    def getStopWords: Set[String] = {
+        return stopWords
+    }
+
+    def getMaxCacheSize: Long = {
+        return maxCacheSize
+    }
+
+    def getDBpediaResourceFactory: DBpediaResourceFactory = {
+        return dbpediaResourceFactory
+    }
+
+    def getSpotterConfiguration: SpotterConfiguration = {
+        return spotterConfiguration
+    }
+
+    def getDisambiguatorConfiguration: DisambiguatorConfiguration = {
+        return disambiguatorConfiguration
+    }
+
+    def getAnalyzer: Analyzer = {
+        return analyzer
+    }
+
+
+
 }

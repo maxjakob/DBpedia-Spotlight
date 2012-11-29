@@ -191,9 +191,9 @@ object SetEvaluation {
       val system = "spotlight"
       for (support <- EvalParams.supportInterval) {   //TODO make it contextualScore and prior
         for (score <- EvalParams.contextualScoreInterval) {
-          //val fileName = baseDir+"/spotlight/Spotlight.c"+confidence+"s"+support+".list";
+          //val configFileName = baseDir+"/spotlight/Spotlight.c"+confidence+"s"+support+".list";
           val fileName = baseDir+"/spotlight/Spotlight.s"+score+"p"+support+".set";
-          //val fileName = baseDir+"/spotlight/AnnotationText-Spotlight.c"+confidence+"s"+support+".txt.set";
+          //val configFileName = baseDir+"/spotlight/AnnotationText-Spotlight.c"+confidence+"s"+support+".txt.set";
           printLine(out1, fileName, system, g, support, score);
         }
       }
@@ -203,9 +203,9 @@ object SetEvaluation {
         out2.println("System, Support, Confidence, Precision, Recall, F1" );
         for (support <- EvalParams.supportInterval) {
           for (confidence <- EvalParams.confidenceInterval) {
-            //val fileName = baseDir+"/spotlight/Spotlight.c"+confidence+"s"+support+".list";
+            //val configFileName = baseDir+"/spotlight/Spotlight.c"+confidence+"s"+support+".list";
             val fileName = baseDir+"/spotlight/Spotlight.c"+confidence+"s"+support+".set";
-            //val fileName = baseDir+"/spotlight/AnnotationText-Spotlight.c"+confidence+"s"+support+".txt.set";
+            //val configFileName = baseDir+"/spotlight/AnnotationText-Spotlight.c"+confidence+"s"+support+".txt.set";
             printLine(out2, fileName, system, g, support, confidence);
           }
         }
