@@ -133,7 +133,7 @@ object AllOccurrenceSource
                     }
 
                     // Definition a.k.a. WikiPageContext
-                    val resource = new DBpediaResource(pageNode.title.encoded)
+                    val resource = Factory.DBpediaResource.from(pageNode.title.encoded)
                     val surfaceForm = new SurfaceForm(pageNode.title.decoded.replaceAll(""" \(.+?\)$""", "")
                                                                             .replaceAll("""^(The|A) """, ""))
                     val pageContext = new Text( WikiPageContextSource.getPageText(pageNode) )

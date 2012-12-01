@@ -85,7 +85,7 @@ public class Feedback {
                 docUrl = new URL("http://spotlight.dbpedia.org/id/"+text.hashCode());
 
             FeedbackStore output = new CSVFeedbackStore(System.out);
-            output.add(docUrl,new Text(text),new DBpediaResource(entityUri),new SurfaceForm(surfaceForm),offset,feedback,systems);
+            output.add(docUrl,new Text(text),Factory.getDBpediaResource().from(entityUri),new SurfaceForm(surfaceForm),offset,feedback,systems);
             response = "ok";
             return ServerUtils.ok(response);
         } catch (Exception e) {

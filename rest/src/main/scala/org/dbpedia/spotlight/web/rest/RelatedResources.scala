@@ -23,7 +23,7 @@ import org.apache.lucene.search.similar.MoreLikeThis
 
 import org.apache.commons.logging.LogFactory
 import org.dbpedia.spotlight.lucene.LuceneManager
-import org.dbpedia.spotlight.model.DBpediaResource
+import org.dbpedia.spotlight.model.{Factory, DBpediaResource}
 import org.dbpedia.spotlight.exceptions.{SearchException, TimeoutException}
 import org.apache.lucene.search._
 import org.apache.lucene.index.{Term, IndexReader}
@@ -128,7 +128,7 @@ class RelatedResources {
         mlt.setFieldNames(Array(DBpediaResourceField.CONTEXT.toString))
         mlt.setAnalyzer(new SnowballAnalyzer(Version.LUCENE_36,"English"))
 
-        val hits = getHits(getQuery(new DBpediaResource(resourceUri)),5,50000,null) //find the document for this URI
+        val hits = getHits(getQuery(Factory.DBpediaResource.from(resourceUri)),5,50000,null) //find the document for this URI
 
         val scoredUris = hits.headOption match {
             case Some(scoredDoc) => getScoredUris(mlt.like(scoredDoc.doc),nHits)

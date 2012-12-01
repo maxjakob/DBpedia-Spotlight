@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 import org.dbpedia.spotlight.string.XmlParser;
 import org.w3c.dom.Element;
@@ -93,7 +94,7 @@ public class AlchemyClient extends AnnotationClient {
                     LOG.trace(String.format("Name:%s, Value: %s",name,value));
                 }
                 if (name.equals("text")) {
-                    entities.add(new DBpediaResource(value)); //TODO could have actually gotten DBpediaResourceOccurrences and set the relevance
+                    entities.add(Factory.getDBpediaResource().from(value)); //TODO could have actually gotten DBpediaResourceOccurrences and set the relevance
                 }
             }
         }

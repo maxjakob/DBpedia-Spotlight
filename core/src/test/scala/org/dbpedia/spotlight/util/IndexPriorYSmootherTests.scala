@@ -20,7 +20,7 @@ package org.dbpedia.spotlight.util
 
 
 import org.junit.Test
-import org.dbpedia.spotlight.model.{SpotlightConfiguration, DBpediaResource}
+import org.dbpedia.spotlight.model.{Factory, SpotlightConfiguration, DBpediaResource}
 
 /**
  * Created by IntelliJ IDEA.
@@ -43,7 +43,7 @@ class IndexPriorYSmootherTests {
             "Apple_%28disambiguation%29"->"+\"Apple\"");
 
         examples.keys.foreach( title => {
-            val s = extractor.createKeywordsFromDBpediaResourceURI(new DBpediaResource(title))
+            val s = extractor.createKeywordsFromDBpediaResourceURI(Factory.DBpediaResource.from(title))
             printf("%-30s=%30s \n",examples(title),s)
             assert(s.equals(examples(title)));
         });
@@ -58,7 +58,7 @@ class IndexPriorYSmootherTests {
             "Apple_%28disambiguation%29"->"+\"Apple\"");
 
         examples.keys.foreach( title => {
-            val r = new DBpediaResource(title)
+            val r = Factory.DBpediaResource.from(title)
             println(r);
             println(extractor.getKeywords(r))
             println;

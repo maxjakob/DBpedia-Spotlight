@@ -43,7 +43,6 @@ import org.dbpedia.extraction.util.WikiUtil
  * @author Joachim Daiber (Tagger and Spotter methods)
  * @author maxjakob
  */
-//class Factory(config: SpotlightConfiguration) {
 object Factory {
 
     private val LOG = LogFactory.getLog(this.getClass)
@@ -134,7 +133,7 @@ object Factory {
         }
 
         def from(uri: String, support: Int, prior: Double, types: List[OntologyType]): DBpediaResource = {
-            Factory.DBpediaResource.from(uri, support, prior, types)
+            new DBpediaResource(uri, support, prior, types)
         }
     }
 

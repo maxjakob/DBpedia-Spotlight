@@ -16,7 +16,7 @@
 
 package org.dbpedia.spotlight.filter.occurrences
 
-import org.dbpedia.spotlight.model.{DBpediaResource, DBpediaResourceOccurrence}
+import org.dbpedia.spotlight.model.{Factory, DBpediaResource, DBpediaResourceOccurrence}
 import io.Source
 import java.io.File
 import org.apache.commons.logging.LogFactory
@@ -27,7 +27,7 @@ class RedirectResolveFilter(val redirects : Map[String,String]) extends Occurren
     def touchOcc(occ : DBpediaResourceOccurrence) : Option[DBpediaResourceOccurrence] = {
         redirects.get(occ.resource.uri) match {
             case Some(targetUri) => {
-                val resolvedResource = new DBpediaResource(targetUri, occ.resource.support, occ.resource.prior, occ.resource.types)
+                val resolvedResource = Factory.DBpediaResource.from(targetUri, occ.resource.support, occ.resource.prior, occ.resource.types)
                 Some(new DBpediaResourceOccurrence(occ.id, resolvedResource, occ.surfaceForm, occ.context, occ.textOffset, occ.provenance, occ.similarityScore, occ.percentageOfSecondRank, occ.contextualScore))
             }
             case None => Some(occ)

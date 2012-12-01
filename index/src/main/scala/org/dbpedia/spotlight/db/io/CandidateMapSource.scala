@@ -97,7 +97,7 @@ object CandidateMapSource {
           val s2 = s1(0).split(" ")
           val sf = s1(1)
           val count = s2(0)
-          val uri = new DBpediaResource(s2(1)).uri
+          val uri = Factory.DBpediaResource.from(s2(1)).uri
 
           candidateMap.put(
             Candidate(surfaceFormStore.getSurfaceForm(sf), resourceStore.getResourceByName(uri)),

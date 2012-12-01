@@ -164,6 +164,6 @@ public class AnnotatedSurfaceFormOccurrence extends SurfaceFormOccurrence {
 	}
 
 	public DBpediaResourceOccurrence toDBpediaResourceOccurrence() {
-		return new DBpediaResourceOccurrence(new DBpediaResource(this.annotationURI), new SurfaceForm(this.surfaceForm), this.text, this.offset);
+		return new DBpediaResourceOccurrence(Factory.getDBpediaResource().from(this.annotationURI), new SurfaceForm(this.surfaceForm), this.text, this.offset);
 	}
 }

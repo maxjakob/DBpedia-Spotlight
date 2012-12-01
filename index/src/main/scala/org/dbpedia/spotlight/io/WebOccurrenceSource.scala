@@ -246,7 +246,7 @@ object WebOccurrenceSource
         while (resourceCount < resourceCountLimit)
         {
             val line = linesIterator.next.trim
-            val targetResource = new DBpediaResource(line)
+            val targetResource = Factory.DBpediaResource.from(line)
 
             if (collect) {
                 LOG.info("** Resource: "+targetResource)
@@ -377,7 +377,7 @@ class MonolithicOccurrenceFilter(val maximumSurfaceFormLength : Int = Integer.MA
     def resolveRedirects(occ : DBpediaResourceOccurrence) : DBpediaResourceOccurrence = {
         redirectsTC.get(occ.resource.uri) match {
             case Some(uri) => {
-                val resolvedResource = new DBpediaResource(uri)
+                val resolvedResource = Factory.DBpediaResource.from(uri)
                 new DBpediaResourceOccurrence(occ.id, resolvedResource, occ.surfaceForm, occ.context, occ.textOffset, occ.provenance)
             }
             case None => occ

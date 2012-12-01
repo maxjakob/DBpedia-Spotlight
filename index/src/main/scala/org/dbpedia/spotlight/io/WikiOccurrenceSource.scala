@@ -146,7 +146,7 @@ object WikiOccurrenceSource
         occurrenceTriples.map{ case (uri : String, sf : String, offset : Int) => {
             occurrenceCount += 1
             val id = occurrenceIdBase + "l" + occurrenceCount
-            new DBpediaResourceOccurrence(id, new DBpediaResource(uri), new SurfaceForm(sf), textInstance, offset, Provenance.Wikipedia) }
+            new DBpediaResourceOccurrence(id, Factory.DBpediaResource.from(uri), new SurfaceForm(sf), textInstance, offset, Provenance.Wikipedia) }
         }
     }
 }

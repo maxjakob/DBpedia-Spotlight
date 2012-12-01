@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.exceptions.AuthenticationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.SpotlightConfiguration;
 import org.dbpedia.spotlight.model.Text;
 import org.json.JSONArray;
@@ -187,12 +188,12 @@ public class OntosClient extends AnnotationClient {
 
        List<String> sameAs = new ArrayList<String>();
        // This will be the result if we can't get anything better
-       DBpediaResource dbpediaSameAs = new DBpediaResource(eid);
+       DBpediaResource dbpediaSameAs = Factory.getDBpediaResource().from(eid);
        try {
            String label = entity.getString("label");
            // This will be the result if there is no proper link to DBpedia
            if (label!=null)
-            dbpediaSameAs = new DBpediaResource(label);
+            dbpediaSameAs = Factory.getDBpediaResource().from(label);
            // Now we try to get the proper link
            JSONObject props = entity.getJSONObject("props");
            JSONArray sameAsIds = props.getJSONArray(ONTOS_COMMON_ENGLISH_SAMEAS);
@@ -201,7 +202,7 @@ public class OntosClient extends AnnotationClient {
                sameAs.add(uri);
                // If there is a proper link, then we add it.
                if (uri.startsWith(SpotlightConfiguration.DEFAULT_NAMESPACE))
-                dbpediaSameAs = new DBpediaResource(uri.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, ""));
+                dbpediaSameAs = Factory.getDBpediaResource().from(uri.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, ""));
            }
        } catch (JSONException e) {
            LOG.error(e.getMessage());

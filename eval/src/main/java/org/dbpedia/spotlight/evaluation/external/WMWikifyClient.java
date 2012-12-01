@@ -19,6 +19,7 @@ package org.dbpedia.spotlight.evaluation.external;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 import org.dbpedia.spotlight.string.XmlParser;
 import org.w3c.dom.Element;
@@ -109,7 +110,7 @@ public class WMWikifyClient extends AnnotationClient {
                     //LOG.trace(String.format("Name:%s, Value: %s", name, value));
                 }
                 if (name.equals("title")) {
-                    entities.add(new DBpediaResource(value)); //TODO could have actually gotten DBpediaResourceOccurrences and set the relevance from weight param
+                    entities.add(Factory.getDBpediaResource().from(value)); //TODO could have actually gotten DBpediaResourceOccurrences and set the relevance from weight param
                 }
             }
         }

@@ -207,7 +207,7 @@ class DisambiguationEvaluator(val testSource : Traversable[DBpediaResourceOccurr
                         }
 
 
-                        val spotlightDecision = if (bestK.size<=0) new DBpediaResource("NIL") else filter(bestK.head.resource)
+                        val spotlightDecision = if (bestK.size<=0) Factory.DBpediaResource.from("NIL") else filter(bestK.head.resource)
 
                         if(testOcc.resource equals spotlightDecision) {
                             if ( (ambiguity>1) || !ambiguousOnly ) { // count only if ambiguity is higher than one or it's not ambiguous only

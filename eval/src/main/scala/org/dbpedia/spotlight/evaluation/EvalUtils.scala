@@ -1,7 +1,7 @@
 package org.dbpedia.spotlight.evaluation
 
 import org.dbpedia.spotlight.string.WikiLinkParser
-import org.dbpedia.spotlight.model.{DBpediaResource, DBpediaResourceOccurrence}
+import org.dbpedia.spotlight.model.{Factory, DBpediaResource, DBpediaResourceOccurrence}
 import org.dbpedia.spotlight.filter.annotations._
 import java.io.{File, FileOutputStream, PrintStream}
 import scala.collection.JavaConversions._
@@ -25,11 +25,11 @@ object EvalUtils {
         for (occ <- occList) {
             text = occ.context.text;
             val chunk = occ.context.text.substring(pos, occ.textOffset);
-            WikiLinkParser.appendToMatrix(chunk, new DBpediaResource(WikiLinkParser.NoTag), buffer);
+            WikiLinkParser.appendToMatrix(chunk, Factory.DBpediaResource.from(WikiLinkParser.NoTag), buffer)
             WikiLinkParser.appendToMatrix(occ.surfaceForm.name, occ.resource, buffer);
             pos = occ.textOffset + occ.surfaceForm.name.length();
         }
-        WikiLinkParser.appendToMatrix(text.substring(pos),new DBpediaResource(WikiLinkParser.NoTag),buffer);
+        WikiLinkParser.appendToMatrix(text.substring(pos),Factory.DBpediaResource.from(WikiLinkParser.NoTag),buffer)
         return buffer.toString();
     }
 

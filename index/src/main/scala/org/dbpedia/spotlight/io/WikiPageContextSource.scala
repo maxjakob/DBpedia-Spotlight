@@ -21,7 +21,7 @@ import xml.Elem
 import org.dbpedia.extraction.sources.{Source, XMLSource}
 import org.dbpedia.spotlight.string.WikiMarkupStripper
 import org.dbpedia.extraction.wikiparser._
-import org.dbpedia.spotlight.model.{DBpediaResource, Text, WikiPageContext}
+import org.dbpedia.spotlight.model.{Factory, DBpediaResource, Text, WikiPageContext}
 import org.dbpedia.extraction.util.Language
 
 /**
@@ -72,7 +72,7 @@ object WikiPageContextSource
                 if (!pageNode.isRedirect && !pageNode.isDisambiguation)
                 {
                     val pageContext = new Text( getPageText(pageNode) )
-                    val resource = new DBpediaResource(pageNode.title.encoded)
+                    val resource = Factory.DBpediaResource.from(pageNode.title.encoded)
                     f( new WikiPageContext(resource, pageContext) )
                 }
             }

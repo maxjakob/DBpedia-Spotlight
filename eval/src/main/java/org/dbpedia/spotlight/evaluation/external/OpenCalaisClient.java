@@ -153,7 +153,7 @@ public class OpenCalaisClient extends AnnotationClient {
                     for (Object i: instances) {
                         Integer offset = (Integer) PropertyUtils.getProperty(i,"offset");
                         String dbpediaUri = dereference(uri);
-                        DBpediaResource resource = new DBpediaResource(dbpediaUri);
+                        DBpediaResource resource = Factory.getDBpediaResource().from(dbpediaUri);
                         //System.out.println(response);
                         entities.add(resource);
 

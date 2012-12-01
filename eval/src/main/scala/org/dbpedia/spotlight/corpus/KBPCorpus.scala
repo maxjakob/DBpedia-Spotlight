@@ -138,7 +138,7 @@ class KBPCorpus(val queryFile:File, val answerFile:File, val sourceDir:File, val
 
   private def entityIdToRes(eid:String):DBpediaResource = {
     val index = eid.slice(1,eid.length).toInt - 1   //KB index start at 1, must -1
-    val res = new DBpediaResource(kb(index))
+    val res = Factory.DBpediaResource.from(kb(index))
 
     if (res.uri == "") LOG.error(String.format("%s : [%s] cannot be matched with a valid uri in knowledge base",eid,kb(index)))
 

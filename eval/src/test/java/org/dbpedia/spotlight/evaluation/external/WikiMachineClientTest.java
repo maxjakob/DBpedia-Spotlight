@@ -18,6 +18,7 @@ package org.dbpedia.spotlight.evaluation.external;
 
 import junit.framework.TestCase;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 import org.junit.Test;
 
@@ -73,7 +74,7 @@ public class WikiMachineClientTest extends TestCase {
 
         List<DBpediaResource> response = c.extract(new Text(text));
 
-        DBpediaResource[] expectedEntities = {new DBpediaResource("Son"), new  DBpediaResource("Pedro_I_of_Brazil"), new  DBpediaResource("Territory_%28administrative_division%29"), new  DBpediaResource("Brazil"), new  DBpediaResource("Monarchy"), new  DBpediaResource("Father"), new  DBpediaResource("Governance"), new  DBpediaResource("Pedro_I_of_Brazil"), new  DBpediaResource("Wars_of_succession"), new  DBpediaResource("Empire_of_Brazil"), new  DBpediaResource("Pedro_II_of_Brazil"), new  DBpediaResource("Brazilian_Declaration_of_Independence"), new  DBpediaResource("Politics_of_the_Empire_of_Brazil"), new  DBpediaResource("Constitutional_monarchy"), new  DBpediaResource("October"), new  DBpediaResource("September"), new  DBpediaResource("Emperor"), new  DBpediaResource("Nation"), new  DBpediaResource("Government")};
+        DBpediaResource[] expectedEntities = {Factory.getDBpediaResource().from("Son"), Factory.getDBpediaResource().from("Pedro_I_of_Brazil"), Factory.getDBpediaResource().from("Territory_%28administrative_division%29"), Factory.getDBpediaResource().from("Brazil"), Factory.getDBpediaResource().from("Monarchy"), Factory.getDBpediaResource().from("Father"), Factory.getDBpediaResource().from("Governance"), Factory.getDBpediaResource().from("Pedro_I_of_Brazil"), Factory.getDBpediaResource().from("Wars_of_succession"), Factory.getDBpediaResource().from("Empire_of_Brazil"), Factory.getDBpediaResource().from("Pedro_II_of_Brazil"), Factory.getDBpediaResource().from("Brazilian_Declaration_of_Independence"), Factory.getDBpediaResource().from("Politics_of_the_Empire_of_Brazil"), Factory.getDBpediaResource().from("Constitutional_monarchy"), Factory.getDBpediaResource().from("October"), Factory.getDBpediaResource().from("September"), Factory.getDBpediaResource().from("Emperor"), Factory.getDBpediaResource().from("Nation"), Factory.getDBpediaResource().from("Government")};
         //TODO sort and compare
         assertEquals(Arrays.asList(expectedEntities).size(),response.size());
 

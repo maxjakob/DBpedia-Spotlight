@@ -97,7 +97,7 @@ object AnnotatedTextSource {
                 val elements = line.trim.split("\t")
                 if (elements.length == 5) {
                     val id = elements(0)
-                    val res = new DBpediaResource(elements(1))
+                    val res = Factory.DBpediaResource.from(elements(1))
                     val sf = new SurfaceForm(elements(2))
                     val t = new Text(elements(3).trim())
                     val offset = elements(4).toInt
@@ -135,7 +135,7 @@ object AnnotatedTextSource {
                 val elements = line.trim.split("\t")
                 if (elements.length == 5) {
                     val id = elements(0)
-                    val res = new DBpediaResource(elements(1))
+                    val res = Factory.DBpediaResource.from(elements(1))
                     val sf = new SurfaceForm(elements(2))
                     val t = new Text(elements(3).trim())
                     val offset = elements(4).toInt

@@ -43,7 +43,7 @@ object DBpediaResourceSource {
     //we do not count elements more than once.
     val resourceMap: Map[String, DBpediaResource] = (Source.fromInputStream(conceptList).getLines().toSet map {
       line: String => {
-        val res = new DBpediaResource(line.trim)
+        val res = Factory.DBpediaResource.from(line.trim)
         res.id = id
         id += 1
         Pair(res.uri, res)
@@ -54,7 +54,7 @@ object DBpediaResourceSource {
     Source.fromInputStream(counts).getLines() foreach {
       line: String => {
         val Array(uri: String, count: String) = line.trim().split('\t')
-        resourceMap(new DBpediaResource(uri).uri).setSupport(count.toInt)
+        resourceMap(Factory.DBpediaResource.from(uri).uri).setSupport(count.toInt)
       }
     }
 
@@ -65,7 +65,7 @@ object DBpediaResourceSource {
         val Array(id: String, typeURI: String) = line.trim().split('\t')
 
         try {
-          resourceMap(new DBpediaResource(id).uri).types ::= OntologyType.fromURI(typeURI)
+          resourceMap(Factory.DBpediaResource.from(id).uri).types ::= OntologyType.fromURI(typeURI)
         } catch {
           case e: NoSuchElementException =>
             //System.err.println("WARNING: DBpedia resource not in concept list %s (%s)".format(id, typeURI) )
@@ -97,7 +97,7 @@ object DBpediaResourceSource {
       line: String => {
         try {
           val Array(wikiurl, count) = line.trim().split('\t')
-          val res = new DBpediaResource(wikipediaToDBpediaClosure.wikipediaToDBpediaURI(wikiurl))
+          val res = Factory.DBpediaResource.from(wikipediaToDBpediaClosure.wikipediaToDBpediaURI(wikiurl))
 
           resourceByURI.get(res.uri) match {
             case Some(oldRes) => {
@@ -126,7 +126,7 @@ object DBpediaResourceSource {
         val Array(uri: String, typeURI: String) = line.trim().split('\t')
 
         try {
-          resourceByURI(new DBpediaResource(uri).uri).types ::= OntologyType.fromURI(typeURI)
+          resourceByURI(Factory.DBpediaResource.from(uri).uri).types ::= OntologyType.fromURI(typeURI)
         } catch {
           case e: java.util.NoSuchElementException =>
             uriNotFound += uri

@@ -27,7 +27,7 @@ class CSAWCorpus(val texts: HashMap[String, Text], val annotations: NodeSeq) ext
       if(docName != null && wikiName != null && !wikiName.equals("")){
         val text = texts(docName)
         val sf  = new SurfaceForm(text.text.substring(offset, offset+length))
-        val res = new DBpediaResource(wikiName)
+        val res = Factory.DBpediaResource.from(wikiName)
         occs(docName) = occs.getOrElse(docName, List()) ::: List(new DBpediaResourceOccurrence(res, sf, text, offset))
       }
     })

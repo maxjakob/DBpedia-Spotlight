@@ -26,6 +26,7 @@ import java.net.URLEncoder;
 import java.util.*;
 
 import org.apache.commons.httpclient.*;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.SpotlightConfiguration;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
@@ -162,7 +163,7 @@ public class SparqlQueryExecuter {
             for (int v = 0; v < vars.length(); v++) {
                 JSONObject typeValue = row.getJSONObject((String) vars.get(v));
                 String uri = typeValue.getString("value").replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "");
-                results.add(new DBpediaResource(uri));
+                results.add(Factory.getDBpediaResource().from(uri));
             }
         }
 

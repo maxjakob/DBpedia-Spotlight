@@ -28,6 +28,7 @@ import org.dbpedia.spotlight.lucene.LuceneManager;
 import org.dbpedia.spotlight.lucene.search.SeparateOccurrencesContextSearcher;
 import org.dbpedia.spotlight.model.DBpediaResource;
 import org.dbpedia.spotlight.model.DBpediaResourceOccurrence;
+import org.dbpedia.spotlight.model.Factory;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -196,7 +197,7 @@ public class MergedOccurrencesContextIndexer extends OccurrenceContextIndexer {
                 // Get document from buffer
                 Document docForResource = uriToDocumentMap.get(uri);
                 // Merge with documents from disk if there are any
-                List<Document> occurrences = searcher.getOccurrences(new DBpediaResource(uri));
+                List<Document> occurrences = searcher.getOccurrences(Factory.getDBpediaResource().from(uri));
                 for (Document occurrenceDoc: occurrences) {
                     docForResource = mLucene.merge(occurrenceDoc, docForResource); // adds occurrence to resource
                 }

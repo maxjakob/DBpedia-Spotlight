@@ -24,10 +24,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.store.FSDirectory;
 import org.dbpedia.spotlight.exceptions.IndexException;
 import org.dbpedia.spotlight.lucene.LuceneManager;
-import org.dbpedia.spotlight.model.Candidate;
-import org.dbpedia.spotlight.model.DBpediaResource;
-import org.dbpedia.spotlight.model.SpotlightConfiguration;
-import org.dbpedia.spotlight.model.SurfaceForm;
+import org.dbpedia.spotlight.model.*;
 import org.semanticweb.yars.nx.Node;
 import org.semanticweb.yars.nx.parser.NxParser;
 
@@ -108,7 +105,7 @@ public class CandidateIndexer extends BaseIndexer<Candidate> {
             String resourceString = nodes[0].toString().replace(SpotlightConfiguration.DEFAULT_NAMESPACE,"");
             String surfaceFormString = nodes[2].toString();
             List<SurfaceForm> surfaceForms = AddSurfaceFormsToIndex.fromTitlesToAlternativesJ(new SurfaceForm(surfaceFormString));
-            add(surfaceForms, new DBpediaResource(resourceString));
+            add(surfaceForms, Factory.getDBpediaResource().from(resourceString));
         }
 
         LOG.info("Done.");
@@ -129,8 +126,8 @@ public class CandidateIndexer extends BaseIndexer<Candidate> {
             String resourceString = line[1];
             //TODO read counts and set DBpediaResource.support
             // int countSfRes = new Integer(line[2])
-            DBpediaResource res = new DBpediaResource(resourceString);
-            // DBpediaResource res = new DBpediaResource(resourceString,countSfRes)
+            DBpediaResource res = Factory.getDBpediaResource().from(resourceString);
+            // DBpediaResource res = Factory.getDBpediaResource().from(resourceString,countSfRes)
             List<SurfaceForm> surfaceForms = AddSurfaceFormsToIndex.fromTitlesToAlternativesJ(new SurfaceForm(surfaceFormString));
             add(surfaceForms, res);
         }
@@ -155,9 +152,9 @@ public class CandidateIndexer extends BaseIndexer<Candidate> {
             String resourceString = countAndSf.substring(8);
             String surfaceFormString = line[1];
             if (count>minCount)
-                add(new SurfaceForm(surfaceFormString), new DBpediaResource(resourceString), count);
+                add(new SurfaceForm(surfaceFormString), Factory.getDBpediaResource().from(resourceString), count);
                 List<SurfaceForm> surfaceForms = AddSurfaceFormsToIndex.fromTitlesToAlternativesJ(new SurfaceForm(surfaceFormString));
-                add(surfaceForms, new DBpediaResource(resourceString));
+                add(surfaceForms, Factory.getDBpediaResource().from(resourceString));
             } catch(ArrayIndexOutOfBoundsException e) {
                 LOG.error("Error parsing line: "+line);
                 e.printStackTrace();

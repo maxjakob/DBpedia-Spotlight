@@ -21,10 +21,7 @@ import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.multipart.*;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
-import org.dbpedia.spotlight.model.DBpediaResource;
-import org.dbpedia.spotlight.model.DBpediaType;
-import org.dbpedia.spotlight.model.SpotlightConfiguration;
-import org.dbpedia.spotlight.model.Text;
+import org.dbpedia.spotlight.model.*;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -143,7 +140,7 @@ public class ExtractivClient extends AnnotationClient {
 				}
 
 				dBpediaTypes.add(new DBpediaType(dbpediaType));
-				DBpediaResource dBpediaResource = new DBpediaResource(dbpediaLink, 0);
+				DBpediaResource dBpediaResource = Factory.getDBpediaResource().from(dbpediaLink, 0);
 
 				if (!dbpediaType.equals("http://www.w3.org/2002/07/owl#Thing")) {
 					dBpediaResource.setTypes(dBpediaTypes);

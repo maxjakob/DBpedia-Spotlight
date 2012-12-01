@@ -139,7 +139,7 @@ public class ExtractionEvaluator {
 				String[] line;
 				while((line = csvReader.readNext()) != null){
 
-					DBpediaResource dbpediaResource = new DBpediaResource(line[1]);
+					DBpediaResource dbpediaResource = Factory.getDBpediaResource().from(line[1]);
 					SurfaceForm surfaceForm = new SurfaceForm(line[2]);
 					int offset = Integer.parseInt(line[4]);
 

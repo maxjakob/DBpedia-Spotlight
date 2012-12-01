@@ -40,7 +40,7 @@ import scalaj.collection.Imports._
 import org.dbpedia.spotlight.util.IndexingConfiguration
 import java.io.File
 import io.Source
-import org.dbpedia.spotlight.model.DBpediaResource
+import org.dbpedia.spotlight.model.{Factory, DBpediaResource}
 import org.apache.commons.logging.{LogFactory, Log}
 import org.dbpedia.spotlight.exceptions.ConfigurationException
 
@@ -75,7 +75,7 @@ object AddCountsToIndex {
         });
         LOG.info("Total count of %d loaded.".format(total))
         LOG.info("Reformatting...")
-        val counts = uriCountMap.map( e => new DBpediaResource(e._1).uri -> e._2 ).asJava
+        val counts = uriCountMap.map( e => Factory.DBpediaResource.from(e._1).uri -> e._2 ).asJava
         LOG.info("Done.")
         counts
     }

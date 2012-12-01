@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 import org.dbpedia.spotlight.string.XmlParser;
 import org.w3c.dom.Element;
@@ -64,7 +65,7 @@ public class ZemantaClient extends AnnotationClient {
                 String name = n.getNodeName();
                 String value = n.getFirstChild().getNodeValue().replaceAll("http://en.wikipedia.org/wiki/","");
                 //System.out.printf("Name:%s, Value: %s \n",name,value);
-                entities.add(new DBpediaResource(value));
+                entities.add(Factory.getDBpediaResource().from(value));
             }
             System.out.println();
         } catch (IOException e) {

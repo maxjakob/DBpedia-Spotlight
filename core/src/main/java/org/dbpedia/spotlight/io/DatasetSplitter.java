@@ -23,6 +23,7 @@ import org.dbpedia.spotlight.exceptions.SearchException;
 import org.dbpedia.spotlight.lucene.LuceneManager;
 import org.dbpedia.spotlight.lucene.search.LuceneCandidateSearcher;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.SpotlightConfiguration;
 import org.dbpedia.spotlight.model.SurfaceForm;
 import org.semanticweb.yars.nx.Node;
@@ -265,7 +266,7 @@ public abstract class DatasetSplitter {
             if (triple[2].toString().equals(targetType)) {
                 String targetUri = triple[0].toString().replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "");
                 try {
-                    Set<SurfaceForm> surfaceFormsForURI = surrogateSearcher.getSurfaceForms(new DBpediaResource(targetUri));
+                    Set<SurfaceForm> surfaceFormsForURI = surrogateSearcher.getSurfaceForms(Factory.getDBpediaResource().from(targetUri));
                     for (SurfaceForm sf : surfaceFormsForURI) {
                         surfaceForms.add(sf.name());    
                     }

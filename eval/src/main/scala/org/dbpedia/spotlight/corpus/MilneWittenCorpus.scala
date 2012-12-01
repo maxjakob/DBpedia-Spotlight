@@ -77,7 +77,7 @@ class MilneWittenCorpus(val documents: Traversable[NodeSeq]) extends AnnotatedTe
 
             accumulatedLengthDifference = accumulatedLengthDifference + lengthDifference
             
-            (new DBpediaResource(uri),new SurfaceForm(cleanSurfaceForm),offset,confidence.toDouble)
+            (Factory.DBpediaResource.from(uri),new SurfaceForm(cleanSurfaceForm),offset,confidence.toDouble)
         })
 
         (spots.toList, cleanText.toString)

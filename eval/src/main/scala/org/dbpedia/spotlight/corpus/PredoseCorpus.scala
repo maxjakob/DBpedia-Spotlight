@@ -42,7 +42,7 @@ class PredoseCorpus(val lines: Iterator[String]) extends AnnotatedTextSource {
             } else {
                 line match {
                     case OccurrenceLine(start, end, label, uri) => {
-                        currentOccurrences += new DBpediaResourceOccurrence(new DBpediaResource(uri),
+                        currentOccurrences += new DBpediaResourceOccurrence(Factory.DBpediaResource.from(uri),
                             new SurfaceForm(label),
                             currentTextItem,
                             start.toInt)

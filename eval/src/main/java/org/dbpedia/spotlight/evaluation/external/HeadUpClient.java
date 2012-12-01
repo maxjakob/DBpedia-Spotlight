@@ -20,6 +20,7 @@ package org.dbpedia.spotlight.evaluation.external;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,7 +79,7 @@ public class HeadUpClient extends AnnotationClient {
 		for(int i = 0; i < requestData.length(); i++) {
 			try {
 				DBpediaResource dBpediaResource
-						= new DBpediaResource(requestData.getJSONObject(i).getString("uri").replace("dbpedia:", ""));
+						= Factory.getDBpediaResource().from(requestData.getJSONObject(i).getString("uri").replace("dbpedia:", ""));
 				dbpediaResources.add(dBpediaResource);
 			} catch (JSONException e) {
 				LOG.error("Error parsing JSON.");

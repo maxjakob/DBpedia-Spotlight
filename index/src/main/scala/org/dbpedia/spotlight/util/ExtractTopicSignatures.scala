@@ -21,7 +21,7 @@ package org.dbpedia.spotlight.util
 
 import java.io.PrintWriter
 import io.Source
-import org.dbpedia.spotlight.model.{SpotlightConfiguration, DBpediaResource}
+import org.dbpedia.spotlight.model.{Factory, SpotlightConfiguration, DBpediaResource}
 import org.apache.commons.logging.LogFactory
 
 /**
@@ -51,7 +51,7 @@ object ExtractTopicSignatures {
             i = i + 1
             LOG.info(String.format("URI %s : %s", i.toString, uri));
             try {
-                val keywords = extractor.getKeywords(new DBpediaResource(uri))
+                val keywords = extractor.getKeywords(Factory.DBpediaResource.from(uri))
                 val filteredKeywords = keywords.filterNot(stopwords.contains(_)).mkString(" ");
                 //TODO allow another stopwording here?
                 signatures.print(String.format("%s\t%s\n", uri, filteredKeywords))

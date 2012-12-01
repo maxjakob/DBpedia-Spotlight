@@ -32,7 +32,7 @@ class FactoryTests {
             "Apple_%28disambiguation%29"->"Apple");
 
         examples.keys.foreach( title => {
-            val r = new DBpediaResource(title)
+            val r = Factory.DBpediaResource.from(title)
             val s = Factory.createSurfaceFormFromDBpediaResourceURI(r, false)
             printf("%-30s=%30s \n",title,r.uri)
             printf("%-30s=%30s \n",examples(title),s.name)
@@ -44,7 +44,7 @@ class FactoryTests {
     def resOccToSFOcc() {
         val examples = List("Germany", "Apple", "Train", "Giant_oil_and_gas_fields");
         //Source.fromFile("/Users/jodaiber/Desktop/conceptURIs.list", "UTF-8").getLines().take(100)
-        val r = new DBpediaResource("Test")
+        val r = Factory.DBpediaResource.from("Test")
         val sf = new SurfaceForm("test")
         val t = new Text("This is a test");
         val resOcc = new DBpediaResourceOccurrence("paragraph1",r,sf,t,10)
@@ -72,7 +72,7 @@ class FactoryTests {
      */
     @Test
     def DBpediaResourceOccurrenceFrom2Step {
-        val r = new DBpediaResource("Test",1000)
+        val r = Factory.DBpediaResource.from("Test",1000)
 
         val sf = new SurfaceForm("test")
         val t = new Text("This is a test");

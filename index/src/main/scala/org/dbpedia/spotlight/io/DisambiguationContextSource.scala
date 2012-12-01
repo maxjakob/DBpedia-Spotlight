@@ -156,7 +156,7 @@ object DisambiguationContextSource
             val cutoff = math.max(disambiguationText.indexOf("""\n"""), disambiguationText.length)
             val textInstance = new Text(disambiguationText.slice(0, cutoff).replaceAll("""\s""", " "))
             val offset = textInstance.text.toLowerCase.indexOf(surfaceForm.name.toLowerCase)
-            Some(new DBpediaResourceOccurrence(id, new DBpediaResource(uri), surfaceForm, textInstance, offset))
+            Some(new DBpediaResourceOccurrence(id, Factory.DBpediaResource.from(uri), surfaceForm, textInstance, offset))
         }
         else
         {

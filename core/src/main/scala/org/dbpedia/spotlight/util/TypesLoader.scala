@@ -45,7 +45,7 @@ object TypesLoader
         var typesMap = Map[String,List[OntologyType]]()
         for (line <- Source.fromFile(typeDictFile, "UTF-8").getLines) {
             val elements = line.split("\t")
-            val uri = new DBpediaResource(elements(0)).uri
+            val uri = Factory.DBpediaResource.from(elements(0)).uri
             val t = Factory.OntologyType.fromURI(elements(1))
             val typesList : List[OntologyType] = typesMap.get(uri).getOrElse(List[OntologyType]()) ::: List(t)
             typesMap = typesMap.updated(uri, typesList)
@@ -60,7 +60,7 @@ object TypesLoader
         var i = 0;
         for (line <- Source.fromInputStream(input, "UTF-8").getLines) {
             val elements = line.split("\t")
-            val uri = new DBpediaResource(elements(0)).uri
+            val uri = Factory.DBpediaResource.from(elements(0)).uri
             val typeUri = elements(1)
             if (!typeUri.equalsIgnoreCase("http://www.w3.org/2002/07/owl#Thing")) {
                 val t = Factory.OntologyType.fromURI(typeUri)
@@ -89,7 +89,7 @@ object TypesLoader
             val triple = parser.next
             if(!triple(2).toString.endsWith("owl#Thing")) {
                 i = i + 1;
-                val resource = new DBpediaResource(triple(0).toString)
+                val resource = Factory.DBpediaResource.from(triple(0).toString)
                 val t = Factory.OntologyType.fromURI(triple(2).toString)
                 val typesList : java.util.LinkedHashSet[OntologyType] = typesMap.get(resource.uri).getOrElse(new LinkedHashSet[OntologyType]())
                 typesList.add(t)

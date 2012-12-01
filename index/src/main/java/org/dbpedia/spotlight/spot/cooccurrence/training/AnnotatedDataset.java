@@ -353,7 +353,7 @@ public class AnnotatedDataset {
 		for (AnnotatedSurfaceFormOccurrence instance : instances) {
             i++;
             String text = (instance.getTextString()!=null) ? instance.getTextString().replaceAll("\\s", " ") : "";
-            String uri = new org.dbpedia.spotlight.model.DBpediaResource(instance.getAnnotationURI()).uri();
+            String uri = Factory.getDBpediaResource().from(instance.getAnnotationURI()).uri();
 			//occId	URI surfaceForm text offset
             writer.write(String.format("%s\t%s\t%s\t%s\t%s\n", instance.getSpotClass().toString() +"-"+ i, uri, instance.getSurfaceForm(), text, "" + instance.getOffset()));
 		}

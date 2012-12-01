@@ -32,7 +32,7 @@ class AidaCorpus(val documents: List[CoNLLDoc]) extends AnnotatedTextSource {
                     inside = true
                     currentEntityName = token.surfaceForm
                     val offset = cleanText.toString().length
-                    Some((paragraphId, new DBpediaResource(token.resourceUri), new SurfaceForm(token.surfaceForm), offset))
+                    Some((paragraphId, Factory.DBpediaResource.from(token.resourceUri), new SurfaceForm(token.surfaceForm), offset))
                 } else if (token.bioTag equals "I") {
                     None
                 } else {

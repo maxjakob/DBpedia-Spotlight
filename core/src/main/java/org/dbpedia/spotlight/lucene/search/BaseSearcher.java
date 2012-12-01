@@ -288,7 +288,7 @@ public class BaseSearcher implements Closeable {
     public DBpediaResource getCachedDBpediaResource(int docNo) throws SearchException {
         try {
             String[] uris = FieldCache.DEFAULT.getStrings(mReader, LuceneManager.DBpediaResourceField.URI.toString());
-            return new DBpediaResource(uris[docNo]);
+            return Factory.getDBpediaResource().from(uris[docNo]);
         } catch (IOException e) {
             throw new SearchException("Error getting cached DBpediaResource.",e);
         }
@@ -317,7 +317,7 @@ public class BaseSearcher implements Closeable {
         if (uri==null)
             throw new SearchException("Cannot find URI for document "+document);
 
-        DBpediaResource resource = new DBpediaResource(uri);
+        DBpediaResource resource = Factory.getDBpediaResource().from(uri);
 
         for (String fieldName: fieldsToLoad) {
             Field field = document.getField(fieldName);
@@ -343,7 +343,7 @@ public class BaseSearcher implements Closeable {
 //            throw new SearchException("Cannot find URI for document "+document);
 //
 //        LOG.trace("Setting URI, types and support...");
-//        DBpediaResource resource = new DBpediaResource(uri);
+//        DBpediaResource resource = Factory.getDBpediaResource().from(uri);
 //        resource.setTypes( getDBpediaTypes(document) );
 //        resource.setSupport( getSupport(document) ); //TODO this can be optimized for time performance by adding a support field. (search for the most likely URI then becomes a bit more complicated)
 //

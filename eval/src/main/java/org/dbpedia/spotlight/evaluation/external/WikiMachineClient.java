@@ -25,6 +25,7 @@ import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.Element;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 
 import java.util.List;
@@ -93,7 +94,7 @@ public class WikiMachineClient extends AnnotationClient {
                 if (wikiUrl!=null)
                     if (wikiUrl.startsWith(wikiPrefix)) {
                         surfaceForm = linkElement.getContent().getTextExtractor().toString();
-                        entities.add(new DBpediaResource(wikiUrl.replaceAll(wikiPrefix,"")));
+                        entities.add(Factory.getDBpediaResource().from(wikiUrl.replaceAll(wikiPrefix, "")));
                         //System.out.println(surfaceForm+" "+wikiUrl);
                     }
             }

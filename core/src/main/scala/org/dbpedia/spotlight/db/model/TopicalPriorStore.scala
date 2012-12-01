@@ -110,9 +110,9 @@ object HashMapTopicalPriorStore extends TopicalPriorStore {
     }
 
     def test() {
-//        val mjCount = getTopicalPriorCount(new DBpediaResource("Michael_Jackson"), new Topic("other"))
+//        val mjCount = getTopicalPriorCount(Factory.DBpediaResource.from("Michael_Jackson"), new Topic("other"))
 //        val otherCount = getTotalCounts().getOrElse(new Topic("other"),0)
-//        println("MJ distribution: "+getTopicalPriorCounts(new DBpediaResource("Michael_Jackson")))
+//        println("MJ distribution: "+getTopicalPriorCounts(Factory.DBpediaResource.from("Michael_Jackson")))
 //        println("c(MJ,other): "+mjCount)
 //        println("c(other): "+otherCount)
 //        println("p(MJ|other): "+ mjCount.toDouble / otherCount)

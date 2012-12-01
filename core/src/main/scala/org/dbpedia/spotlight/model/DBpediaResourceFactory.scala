@@ -56,7 +56,7 @@ class DBpediaResourceFactorySQL(sqlDriver : String, sqlConnector : String, usern
     val totalNumberOfOccs =  69772256; //TODO get this from database. a global table can store TOTAL_OCCURRENCES, or a sum can be obtained at startup
 
     override def from(dbpediaID : String) : DBpediaResource = {
-        val dbpediaResource = new DBpediaResource(dbpediaID)
+        val dbpediaResource = Factory.DBpediaResource.from(dbpediaID)
 
         val statement: PreparedStatement = sqlConnection.prepareStatement("select * from DBpediaResource WHERE URI=? limit 1;")
         statement.setString(1, dbpediaID)
@@ -110,7 +110,7 @@ class DBpediaResourceFactoryLucene(val luceneManager: LuceneManager, val searche
 
     @throws(classOf[SearchException])
     def from(dbpediaID : String): DBpediaResource = {
-        from(searcher.getHits(luceneManager.getQuery(new DBpediaResource(dbpediaID))).head.doc)
+        from(searcher.getHits(luceneManager.getQuery(Factory.DBpediaResource.from(dbpediaID))).head.doc)
     }
 
     def from(luceneDocId : Int): DBpediaResource = {

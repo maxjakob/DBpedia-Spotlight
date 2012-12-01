@@ -1,6 +1,6 @@
 package org.dbpedia.spotlight.db.memory
 
-import org.dbpedia.spotlight.model.DBpediaResource
+import org.dbpedia.spotlight.model.{Factory, DBpediaResource}
 import gnu.trove.TObjectIntHashMap
 import java.lang.{Short, String}
 import scala.collection.JavaConversions._
@@ -70,7 +70,7 @@ class MemoryResourceStore
     val support = supportForID(id)
     val typeIDs = typesForID(id)
 
-    val res = new DBpediaResource(uri, support)
+    val res = Factory.DBpediaResource.from(uri, support)
     res.id = id
     res.setTypes((typeIDs map { typeID: Short => ontologyTypeStore.getOntologyType(typeID) }).toList)
 

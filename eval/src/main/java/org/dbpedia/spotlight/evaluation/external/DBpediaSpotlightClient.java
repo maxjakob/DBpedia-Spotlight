@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,8 +79,8 @@ public class DBpediaSpotlightClient extends AnnotationClient {
 			try {
 				JSONObject entity = entities.getJSONObject(i);
 				resources.add(
-						new DBpediaResource(entity.getString("@URI"),
-								Integer.parseInt(entity.getString("@support"))));
+						Factory.getDBpediaResource().from(entity.getString("@URI"),
+                                Integer.parseInt(entity.getString("@support"))));
 
 			} catch (JSONException e) {
                 LOG.error("JSON exception "+e);
