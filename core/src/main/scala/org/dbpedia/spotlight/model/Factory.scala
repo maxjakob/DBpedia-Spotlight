@@ -41,9 +41,13 @@ import org.dbpedia.extraction.util.WikiUtil
  *
  * @author pablomendes
  * @author Joachim Daiber (Tagger and Spotter methods)
+ * @author maxjakob
  */
+//class Factory(config: SpotlightConfiguration) {
 object Factory {
+
     private val LOG = LogFactory.getLog(this.getClass)
+
     /*
     * I like this style for the factory. group by return type and offer many .from* methods
     */
@@ -98,7 +102,7 @@ object Factory {
         //TODO take a mixture as param?
         def from(sfOcc: SurfaceFormOccurrence, resource: DBpediaResource, score: Tuple3[Int,Double,Double]) = {
             new DBpediaResourceOccurrence("",  // there is no way to know this here
-                new DBpediaResource(resource.uri, score._1),
+                Factory.DBpediaResource.from(resource.uri, score._1),
                 sfOcc.surfaceForm,
                 sfOcc.context,
                 sfOcc.textOffset,
@@ -112,6 +116,25 @@ object Factory {
             if (resource == null) throw new ItemNotFoundException("Could not choose a URI for " + sfOcc.surfaceForm)
             val percentageOfSecond = -1;
             new DBpediaResourceOccurrence("", resource, sfOcc.surfaceForm, sfOcc.context, sfOcc.textOffset, Provenance.Annotation, hit.score, percentageOfSecond, hit.score)
+        }
+    }
+
+    val getDBpediaResource = DBpediaResource
+    object DBpediaResource {
+        def from(uri: String): DBpediaResource = {
+            from(uri, 0)
+        }
+
+        def from(uri: String, support: Int): DBpediaResource = {
+            from(uri, support, 0.0)
+        }
+
+        def from(uri: String, support: Int, prior: Double): DBpediaResource = {
+            from(uri, support, prior, List[OntologyType]())
+        }
+
+        def from(uri: String, support: Int, prior: Double, types: List[OntologyType]): DBpediaResource = {
+            Factory.DBpediaResource.from(uri, support, prior, types)
         }
     }
 
