@@ -59,7 +59,11 @@ public class HeadUpClient extends AnnotationClient {
 
 	final static String API_URL = "http://api.headup.com/v1?q=";
 
-	@Override
+    protected HeadUpClient(Factory factory) {
+        super(factory);
+    }
+
+    @Override
 	public List<DBpediaResource> extract(Text text) throws AnnotationException {
 
 		LinkedList<DBpediaResource> dbpediaResources = new LinkedList<DBpediaResource>();
@@ -79,7 +83,7 @@ public class HeadUpClient extends AnnotationClient {
 		for(int i = 0; i < requestData.length(); i++) {
 			try {
 				DBpediaResource dBpediaResource
-						= Factory.getDBpediaResource().from(requestData.getJSONObject(i).getString("uri").replace("dbpedia:", ""));
+						= factory.getDBpediaResource().from(requestData.getJSONObject(i).getString("uri").replace("dbpedia:", ""));
 				dbpediaResources.add(dBpediaResource);
 			} catch (JSONException e) {
 				LOG.error("Error parsing JSON.");

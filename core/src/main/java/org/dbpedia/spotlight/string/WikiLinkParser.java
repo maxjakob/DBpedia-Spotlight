@@ -70,7 +70,7 @@ public class WikiLinkParser {
             if (middle == -1)
                 break;
 
-            DBpediaResource res = Factory.getDBpediaResource().from(sfResPair.substring(0, middle));
+            DBpediaResource res = factory.getDBpediaResource().from(sfResPair.substring(0, middle));
             SurfaceForm sf = new SurfaceForm(sfResPair.substring(middle+1));
             int offset = start - accumulatedRemovedCharsLength - 2; // the two starting brackets
             DBpediaResourceOccurrence occ = new DBpediaResourceOccurrence(res, sf, unMarkedUpText, offset, Provenance.Manual());
@@ -105,7 +105,7 @@ public class WikiLinkParser {
 
             //System.err.println(cleanText.substring(offset,offset+sfName.length()));
 
-            DBpediaResourceOccurrence occ = new DBpediaResourceOccurrence(Factory.getDBpediaResource().from(uri), new SurfaceForm(sfName), new Text(cleanText), offset);
+            DBpediaResourceOccurrence occ = new DBpediaResourceOccurrence(factory.getDBpediaResource().from(uri), new SurfaceForm(sfName), new Text(cleanText), offset);
             occs.add(occ);
             System.out.println(occ);
         }
@@ -132,7 +132,7 @@ public class WikiLinkParser {
                 chunkWords = chunk.split(" ");
             }
             if (uri==null || uri.trim().equals("")) uri = "NoTag";
-            DBpediaResource resource = Factory.getDBpediaResource().from(uri);
+            DBpediaResource resource = factory.getDBpediaResource().from(uri);
             for (String w: chunkWords) {
                 w = w.trim();
                 if (acceptToMatrix(w)) {

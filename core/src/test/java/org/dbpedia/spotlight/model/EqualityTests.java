@@ -31,9 +31,11 @@ import static org.junit.Assert.*;
  */
 public class EqualityTests {
 
-    DBpediaResource r1 = Factory.getDBpediaResource().from("DBpedia");
-    DBpediaResource r2 = Factory.getDBpediaResource().from("DBpedia");
-    DBpediaResource r3 = Factory.getDBpediaResource().from(SpotlightConfiguration.DEFAULT_NAMESPACE +"DBpedia");
+    Factory factory = new Factory();
+
+    DBpediaResource r1 = factory.getDBpediaResource().from("DBpedia");
+    DBpediaResource r2 = factory.getDBpediaResource().from("DBpedia");
+    DBpediaResource r3 = factory.getDBpediaResource().from(SpotlightConfiguration.DEFAULT_NAMESPACE +"DBpedia");
 
     @Test
     public void testDBpediaResourceEquals() {

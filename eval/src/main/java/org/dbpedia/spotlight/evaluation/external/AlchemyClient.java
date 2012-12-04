@@ -48,7 +48,8 @@ public class AlchemyClient extends AnnotationClient {
 
     String apikey;
 
-    public AlchemyClient(String apikey) {
+    public AlchemyClient(Factory factory, String apikey) {
+        super(factory);
         this.apikey = apikey;
     }
 
@@ -94,7 +95,7 @@ public class AlchemyClient extends AnnotationClient {
                     LOG.trace(String.format("Name:%s, Value: %s",name,value));
                 }
                 if (name.equals("text")) {
-                    entities.add(Factory.getDBpediaResource().from(value)); //TODO could have actually gotten DBpediaResourceOccurrences and set the relevance
+                    entities.add(factory.getDBpediaResource().from(value)); //TODO could have actually gotten DBpediaResourceOccurrences and set the relevance
                 }
             }
         }

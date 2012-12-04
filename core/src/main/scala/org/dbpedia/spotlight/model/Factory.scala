@@ -43,7 +43,7 @@ import org.dbpedia.extraction.util.WikiUtil
  * @author Joachim Daiber (Tagger and Spotter methods)
  * @author maxjakob
  */
-object Factory {
+class Factory {
 
     private val LOG = LogFactory.getLog(this.getClass)
 
@@ -101,7 +101,7 @@ object Factory {
         //TODO take a mixture as param?
         def from(sfOcc: SurfaceFormOccurrence, resource: DBpediaResource, score: Tuple3[Int,Double,Double]) = {
             new DBpediaResourceOccurrence("",  // there is no way to know this here
-                Factory.DBpediaResource.from(resource.uri, score._1),
+                this.DBpediaResource.from(resource.uri, score._1),
                 sfOcc.surfaceForm,
                 sfOcc.context,
                 sfOcc.textOffset,
@@ -118,7 +118,7 @@ object Factory {
         }
     }
 
-    val getDBpediaResource = DBpediaResource
+    val getDBpediaResource = this.DBpediaResource
     object DBpediaResource {
         def from(uri: String): DBpediaResource = {
             from(uri, 0)
@@ -184,14 +184,14 @@ object Factory {
 //            }
 //            ontologyTypes
             val types = ontologyTypesString.split(",").filterNot(t => t.trim.isEmpty)
-            if (types.size>0) types.map(Factory.ontologyType.fromQName).toList else List[OntologyType]()
+            if (types.size>0) types.map(this.ontologyType.fromQName).toList else List[OntologyType]()
         }
     }
 
     def paragraph() = Paragraph
     object Paragraph {
         def from(a: AnnotatedParagraph) = {
-            new Paragraph(a.id,a.text,a.occurrences.map( dro => Factory.SurfaceFormOccurrence.from(dro)))
+            new Paragraph(a.id,a.text,a.occurrences.map( dro => this.SurfaceFormOccurrence.from(dro)))
         }
         def fromJ(occs: java.util.List[SurfaceFormOccurrence]) = {
             from(occs.asScala.toList)

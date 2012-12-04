@@ -62,7 +62,8 @@ public class ExtractivClient extends AnnotationClient {
 	private static Properties typeMapping;
 
 
-	public ExtractivClient(String apiKey) {
+	public ExtractivClient(Factory factory, String apiKey) {
+        super(factory);
 		this.apiKey = apiKey;
 
 
@@ -140,7 +141,7 @@ public class ExtractivClient extends AnnotationClient {
 				}
 
 				dBpediaTypes.add(new DBpediaType(dbpediaType));
-				DBpediaResource dBpediaResource = Factory.getDBpediaResource().from(dbpediaLink, 0);
+				DBpediaResource dBpediaResource = factory.getDBpediaResource().from(dbpediaLink, 0);
 
 				if (!dbpediaType.equals("http://www.w3.org/2002/07/owl#Thing")) {
 					dBpediaResource.setTypes(dBpediaTypes);

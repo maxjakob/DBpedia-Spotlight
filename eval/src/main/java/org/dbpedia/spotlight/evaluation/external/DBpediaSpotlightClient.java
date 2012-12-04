@@ -45,7 +45,11 @@ public class DBpediaSpotlightClient extends AnnotationClient {
 	private static final double CONFIDENCE = 0.0;
 	private static final int SUPPORT = 0;
 
-	@Override
+    protected DBpediaSpotlightClient(Factory factory) {
+        super(factory);
+    }
+
+    @Override
 	public List<DBpediaResource> extract(Text text) throws AnnotationException {
 
         LOG.info("Querying API.");
@@ -79,7 +83,7 @@ public class DBpediaSpotlightClient extends AnnotationClient {
 			try {
 				JSONObject entity = entities.getJSONObject(i);
 				resources.add(
-						Factory.getDBpediaResource().from(entity.getString("@URI"),
+						factory.getDBpediaResource().from(entity.getString("@URI"),
                                 Integer.parseInt(entity.getString("@support"))));
 
 			} catch (JSONException e) {

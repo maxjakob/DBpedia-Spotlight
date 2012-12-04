@@ -266,7 +266,7 @@ public class SpotlightConfiguration {
             }
         }
 
-        analyzer = Factory.analyzer().from(
+        analyzer = factory.analyzer().from(
                 config.getProperty("org.dbpedia.spotlight.lucene.analyzer", "org.apache.lucene.analysis.standard.StandardAnalyzer"),
                 config.getProperty("org.dbpedia.spotlight.lucene.version", "LUCENE_36"), stopWords);
 

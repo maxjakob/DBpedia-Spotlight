@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Logger;
 import org.dbpedia.spotlight.exceptions.AnnotationException;
 import org.dbpedia.spotlight.model.DBpediaResource;
+import org.dbpedia.spotlight.model.Factory;
 import org.dbpedia.spotlight.model.Text;
 
 import java.io.*;
@@ -40,6 +41,11 @@ public abstract class AnnotationClient {
     // Create an instance of HttpClient.
     private static HttpClient client = new HttpClient();
 
+    protected Factory factory;
+
+    protected AnnotationClient(Factory factory) {
+        this.factory = factory;
+    }
 
     public String request(HttpMethod method) throws AnnotationException {
 

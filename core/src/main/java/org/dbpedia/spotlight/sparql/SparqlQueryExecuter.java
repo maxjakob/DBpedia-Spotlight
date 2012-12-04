@@ -163,7 +163,7 @@ public class SparqlQueryExecuter {
             for (int v = 0; v < vars.length(); v++) {
                 JSONObject typeValue = row.getJSONObject((String) vars.get(v));
                 String uri = typeValue.getString("value").replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "");
-                results.add(Factory.getDBpediaResource().from(uri));
+                results.add(factory.getDBpediaResource().from(uri));
             }
         }
 

@@ -47,6 +47,7 @@ public abstract class DatasetSplitter {
 
     Writer mTrainingSetWriter;
     Writer mTestSetWriter;
+    private Factory factory;
 
     /**
      * Abstract constructor. Please see @link{BySize} and @link{BySurfaceForm}}
@@ -54,9 +55,10 @@ public abstract class DatasetSplitter {
      * @param testSetFile
      * @throws IOException
      */
-    public DatasetSplitter(File trainingSetFile, File testSetFile) throws IOException {
+    public DatasetSplitter(File trainingSetFile, File testSetFile, Factory factory) throws IOException {
         this.mTrainingSetWriter = new BufferedWriter(new FileWriter(trainingSetFile));
         this.mTestSetWriter = new BufferedWriter(new FileWriter(testSetFile));
+        this.factory = factory;
     }
 
     public abstract boolean shouldKeepTheseOccurrences(List<String> items);
@@ -266,7 +268,7 @@ public abstract class DatasetSplitter {
             if (triple[2].toString().equals(targetType)) {
                 String targetUri = triple[0].toString().replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "");
                 try {
-                    Set<SurfaceForm> surfaceFormsForURI = surrogateSearcher.getSurfaceForms(Factory.getDBpediaResource().from(targetUri));
+                    Set<SurfaceForm> surfaceFormsForURI = surrogateSearcher.getSurfaceForms(factory.getDBpediaResource().from(targetUri));
                     for (SurfaceForm sf : surfaceFormsForURI) {
                         surfaceForms.add(sf.name());    
                     }

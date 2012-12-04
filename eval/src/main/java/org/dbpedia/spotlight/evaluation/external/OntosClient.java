@@ -62,7 +62,8 @@ public class OntosClient extends AnnotationClient {
     boolean authenticated = false;
     String authToken;
 
-    public OntosClient(String user, String password) throws AuthenticationException {
+    public OntosClient(Factory factory, String user, String password) throws AuthenticationException {
+        super(factory);
         this.authenticated = authenticate(user,password);
     }
 
@@ -188,12 +189,12 @@ public class OntosClient extends AnnotationClient {
 
        List<String> sameAs = new ArrayList<String>();
        // This will be the result if we can't get anything better
-       DBpediaResource dbpediaSameAs = Factory.getDBpediaResource().from(eid);
+       DBpediaResource dbpediaSameAs = factory.getDBpediaResource().from(eid);
        try {
            String label = entity.getString("label");
            // This will be the result if there is no proper link to DBpedia
            if (label!=null)
-            dbpediaSameAs = Factory.getDBpediaResource().from(label);
+            dbpediaSameAs = factory.getDBpediaResource().from(label);
            // Now we try to get the proper link
            JSONObject props = entity.getJSONObject("props");
            JSONArray sameAsIds = props.getJSONArray(ONTOS_COMMON_ENGLISH_SAMEAS);
@@ -202,7 +203,7 @@ public class OntosClient extends AnnotationClient {
                sameAs.add(uri);
                // If there is a proper link, then we add it.
                if (uri.startsWith(SpotlightConfiguration.DEFAULT_NAMESPACE))
-                dbpediaSameAs = Factory.getDBpediaResource().from(uri.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, ""));
+                dbpediaSameAs = factory.getDBpediaResource().from(uri.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, ""));
            }
        } catch (JSONException e) {
            LOG.error(e.getMessage());

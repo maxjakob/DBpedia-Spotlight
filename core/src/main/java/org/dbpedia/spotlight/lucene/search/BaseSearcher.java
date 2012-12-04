@@ -50,6 +50,7 @@ public class BaseSearcher implements Closeable {
     LuceneManager mLucene;
     IndexSearcher mSearcher;
     public IndexReader mReader;
+    private Factory factory;
 
     //TODO create method that iterates over all documents in the index and computes this. (if takes too long, think about storing somewhere at indexing time)
     private double mNumberOfOccurrences = 69772256;
@@ -58,12 +59,13 @@ public class BaseSearcher implements Closeable {
 
     public long objectCreationTime = 0;
 
-    public BaseSearcher(LuceneManager lucene) throws IOException {
-        this(lucene,false);
+    public BaseSearcher(LuceneManager lucene, Factory factory) throws IOException {
+        this(lucene,factory, false);
     }
 
-    public BaseSearcher(LuceneManager lucene, boolean inMemory) throws IOException {
+    public BaseSearcher(LuceneManager lucene, Factory factory, boolean inMemory) throws IOException {
         this.mLucene = lucene;
+        this.factory = factory;
         if (inMemory) {
             LOG.info("Creating in-memory lucene searcher... (may take 2-3 minutes and several GB of RAM)");
             this.mLucene.mContextIndexDir = new RAMDirectory(this.mLucene.mContextIndexDir);
@@ -288,7 +290,7 @@ public class BaseSearcher implements Closeable {
     public DBpediaResource getCachedDBpediaResource(int docNo) throws SearchException {
         try {
             String[] uris = FieldCache.DEFAULT.getStrings(mReader, LuceneManager.DBpediaResourceField.URI.toString());
-            return Factory.getDBpediaResource().from(uris[docNo]);
+            return factory.getDBpediaResource().from(uris[docNo]);
         } catch (IOException e) {
             throw new SearchException("Error getting cached DBpediaResource.",e);
         }
@@ -317,11 +319,11 @@ public class BaseSearcher implements Closeable {
         if (uri==null)
             throw new SearchException("Cannot find URI for document "+document);
 
-        DBpediaResource resource = Factory.getDBpediaResource().from(uri);
+        DBpediaResource resource = factory.getDBpediaResource().from(uri);
 
         for (String fieldName: fieldsToLoad) {
             Field field = document.getField(fieldName);
-            if (field != null) Factory.setField(resource, LuceneManager.DBpediaResourceField.valueOf(fieldName), document);
+            if (field != null) factory.setField(resource, LuceneManager.DBpediaResourceField.valueOf(fieldName), document);
         }
         if (resource.prior() == 0.0) { // adjust prior
             resource.setPrior(resource.support() / this.getNumberOfOccurrences());
