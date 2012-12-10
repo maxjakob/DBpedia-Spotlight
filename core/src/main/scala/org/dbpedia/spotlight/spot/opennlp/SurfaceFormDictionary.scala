@@ -1,11 +1,14 @@
 package org.dbpedia.spotlight.spot.opennlp
 
-import java.io.File
+import java.io.{FileInputStream, File}
 import collection.mutable.HashSet
 import org.dbpedia.spotlight.util.bloomfilter.LongFastBloomFilter
 import com.aliasi.util.AbstractExternalizable
 import com.aliasi.dict.Dictionary
 import scala.collection.JavaConversions._
+import org.apache.lucene.util.fst.{Builder, FST, NoOutputs, Util}
+import org.apache.lucene.store.InputStreamDataInput
+import org.apache.lucene.util.IntsRef
 
 /**
  * @author Joachim Daiber
@@ -56,6 +59,38 @@ class ProbabilisticSurfaceFormDictionary(expectedSize: Int, caseSensitive: Boole
 }
 
 
+class FsaSurfaceFormDictionary(expectedSize: Int, caseSensitive: Boolean) extends SurfaceFormDictionary {
+    private val fsaBuilder = new Builder(FST.INPUT_TYPE.BYTE4, NoOutputs.getSingleton)
+    private var fsa: FST[Object] = null
+    private var lastSurfaceForm = ""
+    private var count = 0
+
+    def this(fsa: FST[Object], caseSensitive: Boolean) {
+        this(0, caseSensitive)
+        this.fsa = fsa
+    }
+
+    private def toIntsRef(sf: String) = Util.toUTF32(normalizeEntry(sf), new IntsRef(sf.length))
+
+    def add(surfaceForm: String) {
+        require(lastSurfaceForm < surfaceForm, "surface forms have to be added in sorted order")
+        require(count < expectedSize, "expected number of surface forms was already added")
+        fsaBuilder.add(toIntsRef(surfaceForm), NoOutputs.getSingleton)
+        count += 1
+        if (count == expectedSize) {
+            fsa = fsaBuilder.finish()
+        }
+        lastSurfaceForm = surfaceForm
+    }
+
+    def contains(surfaceForm: String): Boolean = {
+        Util.get(fsa, toIntsRef(normalizeEntry(surfaceForm))) != null
+    }
+
+    def size = count
+}
+
+
 /**
  * Simple factory methods for each of the SurfaceFormDictionary implementations.
  */
@@ -72,6 +107,10 @@ object SurfaceFormDictionary {
 
     dictionary.entryList().foreach(entry => surfaceformDictionary.add(entry.phrase()))
     surfaceformDictionary
+  }
+
+  def fromLingPipeDictionaryFile(dictionaryFile: File, caseSensitive: Boolean = true): SurfaceFormDictionary = {
+    fromLingPipeDictionary(AbstractExternalizable.readObject(dictionaryFile).asInstanceOf[Dictionary[String]])
   }
 
 }
@@ -101,6 +140,26 @@ object ExactSurfaceFormDictionary {
     SurfaceFormDictionary.fromLingPipeDictionary(AbstractExternalizable.readObject(dictionaryFile).asInstanceOf[Dictionary[String]],
       new ExactSurfaceFormDictionary(caseSensitive))
   }
+}
+
+object FsaSurfaceFormDictionary {
+    def fromFile(dictionaryFile: File, caseSensitive: Boolean = true) : SurfaceFormDictionary = {
+        SurfaceFormDictionary.fromIterator(io.Source.fromFile(dictionaryFile).getLines().toList.sorted.toIterator,
+            new FsaSurfaceFormDictionary(io.Source.fromFile(dictionaryFile).size, caseSensitive))
+    }
+    def fromFsaFile(fsaFile: File, caseSensitive: Boolean = true) : SurfaceFormDictionary = {
+        val dataIn = new InputStreamDataInput(new FileInputStream(fsaFile))
+        val fsa = new FST[Object](dataIn, NoOutputs.getSingleton)
+        new FsaSurfaceFormDictionary(fsa, caseSensitive)
+    }
+    def fromLingPipeDictionaryFile(dictionaryFile: File, caseSensitive: Boolean = true): SurfaceFormDictionary = {
+        val d = AbstractExternalizable.readObject(dictionaryFile).asInstanceOf[Dictionary[String]]
+        SurfaceFormDictionary.fromIterator(d.entryList().map(_.phrase).sorted.toIterator,
+            new FsaSurfaceFormDictionary(d.size(), caseSensitive))
+    }
+    def saveFsa(fsaSurfaceFormDictionary: FsaSurfaceFormDictionary, file: File) {
+        fsaSurfaceFormDictionary.fsa.save(file)
+    }
 }
 
 

@@ -6,7 +6,7 @@ import org.scalatest._
 import matchers.ShouldMatchers
 import scala.collection.JavaConversions._
 
-class FsaSpotterTest extends FlatSpec with ShouldMatchers {
+class SpotterTest extends FlatSpec with ShouldMatchers {
 
     "FstSpotter" should "find word in first position" in {
         val in = new Text("Words are what we search")
