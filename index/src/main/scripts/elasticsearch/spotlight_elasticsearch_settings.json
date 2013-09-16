@@ -1,7 +1,7 @@
 {
     "settings" : {
-        "number_of_shards" : 1,
-        "number_of_replicas" : 2
+        "number_of_shards" : 5,
+        "number_of_replicas" : 1
     },
     "mappings" : {
         "entities" : {
@@ -15,10 +15,9 @@
                 "context" : {
                     "type" : "string",
                     "store" : "no",
-                    "index" : "analyzed",
+                    "index" : "not_analyzed",
                     "term_vector" : "yes",
                     "index_options" : "freqs",
-                    "index_analyzer" : "none"
                     "search_analyzer" : "standard"
                 },
                 "uriCount" : {

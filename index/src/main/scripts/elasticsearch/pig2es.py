@@ -37,6 +37,8 @@ def onlyUriEnding(wikiUrl):
     # TODO use WikipediaToDBpediaClosure.scala
     return wikiUrl[wikiUrl.index("/wiki/")+6:]
 
+def encode(s):
+    return s.replace('\\', '\\\\').replace('"', '\\"')
 
 def parseTokenCounts(line):
     def toTuple(s):
@@ -51,13 +53,13 @@ def parseTokenCounts(line):
         stripped = data[2:-2]  # remove starting '{(' and ending ')}'
         freqs = map(toTuple, stripped.split("),("))
     context = " ".join(map(lambda (t, f): (t+" ")*int(f), freqs))
-    return uri, CONTEXT_FIELD, '"'+context+'"'
+    return uri, CONTEXT_FIELD, '"'+encode(context)+'"'
 
 
 def parsePairCounts(line):
     sf, wikiUrl, freq = line.strip().split("\t")
     uri = onlyUriEnding(wikiUrl)
-    return uri, SURFACE_FORM, '"'+sf+'"'
+    return uri, SURFACE_FORM, '"'+encode(sf)+'"'
 
 
 def parseUriCounts(line):
@@ -85,9 +87,9 @@ def parseFile(fileName):
             yield parser(line)
 
 
-def toJson(indexName, typeName, uri, fieldName, val):
-    indexLine = '{"index":{"_index":"%s","_type":"%s","_id":"%s"}}' % (
-        indexName, typeName, uri)
+def toJson(indexName, typeName, uri, fieldName, val, operation):
+    indexLine = '{"%s":{"_index":"%s","_type":"%s","_id":"%s"}}' % (
+        operation, indexName, typeName, uri)
     fieldsLine = '{"%s":%s}' %  (fieldName, val)
     return indexLine + "\n" + fieldsLine + "\n"
 
@@ -97,13 +99,16 @@ def newFile(fileNameBase, i):
 
 
 if __name__ == '__main__':
-    indexName, pigOutputFileName = sys.argv[1:3]
+    indexName, pigOutputFileName, operation = sys.argv[1:4]
+
+    if operation not in ["index", "update"]:
+        raise ValueError, "3rd arg: operation must be one of [index, update]"
 
     bulks = 1
     outFile = newFile(pigOutputFileName, bulks)
 
     for idx, (uri, field, val) in enumerate(parseFile(pigOutputFileName)):
-        json = toJson(indexName, TYPE_NAME, uri, field, val)
+        json = toJson(indexName, TYPE_NAME, uri, field, val, operation)
         outFile.write(json)
 
         if (idx+1)%BULK_SIZE == 0:
