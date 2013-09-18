@@ -1,6 +1,5 @@
 package org.dbpedia.spotlight.elasticsearch
 
-import org.dbpedia.spotlight.disambiguate.ParagraphDisambiguator
 import org.dbpedia.spotlight.model._
 import org.elasticsearch.action.search.{MultiSearchResponse, SearchRequestBuilder}
 

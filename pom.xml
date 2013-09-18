@@ -45,16 +45,9 @@
 
     <modules>
         <module>core</module>
-        <module>rest</module>
         <module>index</module>
-        <module>eval</module>
-	    <module>uima</module>
-	    <!--
-        <module>topical</module>
-        <module>live</module>
-        -->
-        <module>dist</module>
-        <module>rest-tomcat</module>
+        <module>rest</module>
+        <module>elasticsearch</module>
     </modules>
 
     <build>
