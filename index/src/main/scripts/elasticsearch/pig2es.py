@@ -90,7 +90,10 @@ def parseFile(fileName):
 def toJson(indexName, typeName, uri, fieldName, val, operation):
     indexLine = '{"%s":{"_index":"%s","_type":"%s","_id":"%s"}}' % (
         operation, indexName, typeName, uri)
-    fieldsLine = '{"%s":%s}' %  (fieldName, val)
+    if operation == 'index':
+        fieldsLine = '{"%s":%s}' %  (fieldName, val)
+    else:
+        fieldsLine = '{"doc":{"%s":%s}}' % (fieldName, val)
     return indexLine + "\n" + fieldsLine + "\n"
 
 
