@@ -2,6 +2,7 @@ package org.dbpedia.spotlight.elasticsearch
 
 import org.dbpedia.spotlight.model._
 import org.elasticsearch.action.search.{MultiSearchResponse, SearchRequestBuilder}
+import org.elasticsearch.index.query.QueryBuilders
 
 /**
  * Disambiguator that uses ElasticSearch
@@ -19,11 +20,14 @@ class ESDisambiguator(config: ESConfig) extends ParagraphDisambiguator {
 
         val multiSearchBuilder = config.client.prepareMultiSearch()
         for (sfOcc <- paragraph.occurrences) {
-            val r = new SearchRequestBuilder(config.client).setQuery(getQuery(sfOcc))
-            multiSearchBuilder.add(r)
+            val srb = config.client.prepareSearch()
+                .setQuery(getQuery(sfOcc))
+                .addFields(config.sfField, config.uriCountField)
+                .setSize(k)
+            multiSearchBuilder.add(srb)
 
-            val k = sfOcc.surfaceForm.name  //TODO normalize sfs!
-            occsMap.put(k, occsMap.getOrElse(k, Set()) + sfOcc)
+            val sf = sfOcc.surfaceForm.name  //TODO normalize sfs!
+            occsMap.put(sf, occsMap.getOrElse(sf, Set()) + sfOcc)
         }
 
         val responses = multiSearchBuilder.execute().actionGet(config.timeoutMillis)
@@ -33,17 +37,18 @@ class ESDisambiguator(config: ESConfig) extends ParagraphDisambiguator {
     private def getQuery(sfOcc: SurfaceFormOccurrence) = {
         //TODO return a Query object
         //TODO be fuzzy for surface forms
-        config.sfField+":"+sfOcc.surfaceForm+" "+config.contextField+":"+sfOcc.context.text
+        QueryBuilders.queryString(config.sfField+":\""+sfOcc.surfaceForm.name+"\" "+config.contextField+":\""+sfOcc.context.text+"\"")
+
     }
 
     private def createResultMap(responses: MultiSearchResponse, occsMap: collection.mutable.Map[String, Set[SurfaceFormOccurrence]], k: Int) = {
         val resultMap = collection.mutable.Map[SurfaceFormOccurrence, List[DBpediaResourceOccurrence]]()
-        val resultBuffer = collection.mutable.ListBuffer[DBpediaResource]()
 
         val allHits = responses.getResponses.map(_.getResponse.getHits)
         for (hits <- allHits.filter(_.totalHits() > 0)) {
 
-            for (i <- 1 to k) {
+            val resultBuffer = collection.mutable.ListBuffer[DBpediaResource]()
+            for (i <- 0 to math.min(hits.totalHits().toInt, k) - 1) {
                 val hit = hits.getAt(i)
                 val uri = hit.id()
                 val support = hit.field(config.uriCountField).value[Int]()
