@@ -1,7 +1,9 @@
 package org.dbpedia.spotlight.elasticsearch
 
-import org.elasticsearch.node.NodeBuilder
 import org.elasticsearch.common.settings.ImmutableSettings
+import org.elasticsearch.client.transport.TransportClient
+import org.elasticsearch.common.transport.InetSocketTransportAddress
+import org.elasticsearch.client.Client
 
 /**
  * Configuration object for ElasticSearch.
@@ -10,18 +12,20 @@ import org.elasticsearch.common.settings.ImmutableSettings
  * Index types are ignored for now
  */
 case class ESConfig(serverUrl: String,
+                    port: Int,
                     index: String,
                     uriCountField: String,
                     sfField: String,
                     contextField: String,
                     timeoutMillis: Long) {
 
-    val client = makeClient
+    val client: Client = makeClient
 
     private def makeClient = {
-        val nb = NodeBuilder.nodeBuilder()
-        val s = ImmutableSettings.settingsBuilder().put("network.host", serverUrl)
-        nb.settings(s).clusterName("DBpedia Spotlight disambiguation").build().client()
+        val s = ImmutableSettings.settingsBuilder()
+            .put("client.transport.ignore_cluster_name", true)
+            .put("client.transport.ping_timeout", "15s")
+        new TransportClient(s).addTransportAddress(new InetSocketTransportAddress(serverUrl, port))
     }
 
 }
