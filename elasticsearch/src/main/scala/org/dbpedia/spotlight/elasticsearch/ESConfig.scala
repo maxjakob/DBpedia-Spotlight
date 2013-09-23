@@ -28,4 +28,8 @@ case class ESConfig(serverUrl: String,
         new TransportClient(s).addTransportAddress(new InetSocketTransportAddress(serverUrl, port))
     }
 
+    //TODO add the mapping here
+
+    //TODO check LuceneManager to see what needs to be ported, e.g. type of queries, similarity
+    //note that analyers are set in the mapping
 }

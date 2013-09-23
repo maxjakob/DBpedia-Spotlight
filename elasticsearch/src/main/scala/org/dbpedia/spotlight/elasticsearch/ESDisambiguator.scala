@@ -2,7 +2,7 @@ package org.dbpedia.spotlight.elasticsearch
 
 import org.dbpedia.spotlight.model._
 import org.elasticsearch.action.search.{MultiSearchResponse, SearchRequestBuilder}
-import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.index.query.{MatchQueryBuilder, QueryBuilders}
 import org.elasticsearch.search.SearchHits
 
 /**
@@ -31,10 +31,15 @@ class ESDisambiguator(config: ESConfig) extends ParagraphDisambiguator {
     }
 
     private def getQuery(sfOcc: SurfaceFormOccurrence) = {
-        //TODO return a Query object
-        //TODO be fuzzy for surface forms
-        QueryBuilders.queryString(config.sfField+":\""+sfOcc.surfaceForm.name+"\" "+config.contextField+":\""+sfOcc.context.text+"\"")
-
+        QueryBuilders.boolQuery()
+            .must(
+                QueryBuilders.fuzzyQuery(config.sfField, sfOcc.surfaceForm.name)
+                    .minSimilarity(0.9f)
+            )
+            .should(
+                QueryBuilders.matchQuery(config.contextField, sfOcc.context.text)
+                    .operator(MatchQueryBuilder.Operator.AND)
+            )
     }
 
     private def createResultMap(responses: MultiSearchResponse, paragraph: Paragraph, k: Int) = {
