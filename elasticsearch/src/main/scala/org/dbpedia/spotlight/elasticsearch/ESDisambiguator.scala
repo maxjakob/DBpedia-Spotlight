@@ -3,6 +3,7 @@ package org.dbpedia.spotlight.elasticsearch
 import org.dbpedia.spotlight.model._
 import org.elasticsearch.action.search.{MultiSearchResponse, SearchRequestBuilder}
 import org.elasticsearch.index.query.QueryBuilders
+import org.elasticsearch.search.SearchHits
 
 /**
  * Disambiguator that uses ElasticSearch
@@ -16,8 +17,6 @@ class ESDisambiguator(config: ESConfig) extends ParagraphDisambiguator {
     }
 
     def bestK(paragraph: Paragraph, k: Int): Map[SurfaceFormOccurrence, List[DBpediaResourceOccurrence]] = {
-        val occsMap = collection.mutable.Map[String, Set[SurfaceFormOccurrence]]()
-
         val multiSearchBuilder = config.client.prepareMultiSearch()
         for (sfOcc <- paragraph.occurrences) {
             val srb = config.client.prepareSearch()
@@ -25,13 +24,10 @@ class ESDisambiguator(config: ESConfig) extends ParagraphDisambiguator {
                 .addFields(config.sfField, config.uriCountField)
                 .setSize(k)
             multiSearchBuilder.add(srb)
-
-            val sf = sfOcc.surfaceForm.name  //TODO normalize sfs!
-            occsMap.put(sf, occsMap.getOrElse(sf, Set()) + sfOcc)
         }
 
         val responses = multiSearchBuilder.execute().actionGet(config.timeoutMillis)
-        createResultMap(responses, occsMap, k)
+        createResultMap(responses, paragraph, k)
     }
 
     private def getQuery(sfOcc: SurfaceFormOccurrence) = {
@@ -41,32 +37,34 @@ class ESDisambiguator(config: ESConfig) extends ParagraphDisambiguator {
 
     }
 
-    private def createResultMap(responses: MultiSearchResponse, occsMap: collection.mutable.Map[String, Set[SurfaceFormOccurrence]], k: Int) = {
+    private def createResultMap(responses: MultiSearchResponse, paragraph: Paragraph, k: Int) = {
         val resultMap = collection.mutable.Map[SurfaceFormOccurrence, List[DBpediaResourceOccurrence]]()
+        val sfOccsIt = paragraph.getOccurrences().iterator()
 
-        val allHits = responses.getResponses.map(_.getResponse.getHits)
-        for (hits <- allHits.filter(_.totalHits() > 0)) {
-
-            val resultBuffer = collection.mutable.ListBuffer[DBpediaResource]()
-            for (i <- 0 to math.min(hits.totalHits().toInt, k) - 1) {
-                val hit = hits.getAt(i)
-                val uri = hit.id()
-                val support = hit.field(config.uriCountField).value[Int]()
-
-                resultBuffer.append(new DBpediaResource(uri, support))
-            }
-
-            val sfOccs: Set[SurfaceFormOccurrence] = occsMap(hits.getAt(0).field(config.sfField).getValue[String]())
-            for (sfOcc <- sfOccs) {
-                if (!resultMap.contains(sfOcc)) {
-                    val resOccs = resultBuffer.map( res =>
-                        new DBpediaResourceOccurrence(res, sfOcc.surfaceForm, sfOcc.context, sfOcc.textOffset)
-                    ).result()
-                    resultMap.put(sfOcc, resOccs)
-                }
+        for (response <- responses.getResponses) {
+            val sfOcc = sfOccsIt.next()
+            val hits = response.getResponse.getHits
+            if (hits.totalHits() > 0) {
+                val resources = makeResources(hits, k)
+                val resOcc = resources.map( res =>
+                    new DBpediaResourceOccurrence(res, sfOcc.surfaceForm, sfOcc.context, sfOcc.textOffset)
+                )
+                resultMap.put(sfOcc, resOcc)
             }
         }
 
         resultMap.toMap
+    }
+
+    private def makeResources(hits: SearchHits, k: Int) = {
+        val resultBuffer = collection.mutable.ListBuffer[DBpediaResource]()
+        for (i <- 0 to math.min(hits.totalHits().toInt, k) - 1) {
+            val hit = hits.getAt(i)
+            val uri = hit.id()
+            val support = hit.field(config.uriCountField).value[Int]()
+
+            resultBuffer.append(new DBpediaResource(uri, support))
+        }
+        resultBuffer.result()
     }
 }
