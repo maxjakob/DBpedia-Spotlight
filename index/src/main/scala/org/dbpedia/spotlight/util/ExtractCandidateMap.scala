@@ -26,7 +26,7 @@ import org.dbpedia.spotlight.model.{Factory, SpotlightConfiguration, SurfaceForm
 import java.util.Scanner
 import org.semanticweb.yars.nx.parser.NxParser
 import org.semanticweb.yars.nx.{Literal, Resource, Triple}
-import collection.JavaConversions._
+//import collection.JavaConversions._
 import util.matching.Regex
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import org.dbpedia.extraction.util.WikiUtil
@@ -77,7 +77,11 @@ object ExtractCandidateMap
         // redirects and disambiguations are bad URIs
         for (fileName <- List(redirectsFileName, disambiguationsFileName)) {
             val input = new BZip2CompressorInputStream(new FileInputStream(fileName),true)
-            for(triple <- new NxParser(input)) {
+            val nxp = new NxParser(input)
+            while (nxp.hasNext)
+            {
+            val triple = nxp.next()
+            //for(triple <- new NxParser(input)) {
                 val badUri = triple(0).toString.replace(SpotlightConfiguration.DEFAULT_NAMESPACE, "")
                 badURIs += badUri
                 badURIStream.println(badUri)
