@@ -6,13 +6,13 @@
     "mappings" : {
         "entities" : {
             "properties" : {
-                "sf" : {
+                "SURFACE_FORM" : {
                     "type" : "string",
                     "store" : "yes",
                     "index" : "not_analyzed",
                     "term_vector" : "no"
                 },
-                "context" : {
+                "CONTEXT" : {
                     "type" : "string",
                     "store" : "no",
                     "index" : "not_analyzed",
@@ -20,7 +20,7 @@
                     "index_options" : "freqs",
                     "search_analyzer" : "standard"
                 },
-                "uriCount" : {
+                "URI_COUNT" : {
                     "type" : "integer",
                     "store" : "yes",
                     "index" : "not_analyzed",
